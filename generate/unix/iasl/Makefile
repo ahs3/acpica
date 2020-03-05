@@ -246,7 +246,8 @@ OBJECTS = \
 	$(OBJDIR)/utstring.o\
 	$(OBJDIR)/utuuid.o\
 	$(OBJDIR)/utxface.o\
-	$(OBJDIR)/utxferror.o
+	$(OBJDIR)/utxferror.o\
+	$(OBJDIR)/utendian.o
 
 INTERMEDIATES = \
 	$(OBJDIR)/aslcompiler.y\
