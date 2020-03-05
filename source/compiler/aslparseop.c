@@ -408,6 +408,14 @@ TrCreateValuedLeafOp (
 
     case PARSEOP_NAMESEG:
 
+	{
+		UINT32 tmp;
+
+		ACPI_MOVE_32_TO_32(&tmp, (UINT32 *)Op->Asl.Value.String);
+		memcpy(Op->Asl.Value.String, &tmp, ACPI_NAMESEG_SIZE);
+
+		/* printf(" =%4.4s= ", Op->Asl.Value.String); */
+	}
         DbgPrint (ASL_PARSE_OUTPUT, "NAMESEG->%s", Op->Asl.Value.String);
         break;
 

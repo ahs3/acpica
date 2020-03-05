@@ -232,8 +232,11 @@ NameSeg
 */
 
 NameSeg
-    : PARSEOP_NAMESEG               {$$ = TrCreateValuedLeafOp (PARSEOP_NAMESEG,
-                                        (ACPI_NATIVE_INT) AslCompilerlval.s);}
+    : PARSEOP_NAMESEG {
+	/* printf(" ||%4.4s|| ", AslCompilerlval.s); */
+	$$ = TrCreateValuedLeafOp (PARSEOP_NAMESEG,
+		(ACPI_NATIVE_INT) AslCompilerlval.s);
+	}
     ;
 
 
