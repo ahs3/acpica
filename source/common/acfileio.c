@@ -427,6 +427,7 @@ AcGetOneTableFromFile (
 
     /* Allocate a buffer for the entire table */
 
+    AcpiUtConvertLEToHostInt(&TableHeader.Length, 2, &TableHeader.Length, 2);
     Table = AcpiOsAllocate ((ACPI_SIZE) TableHeader.Length);
     if (!Table)
     {
@@ -572,6 +573,7 @@ AcValidateTableHeader (
     /* Validate table length against bytes remaining in the file */
 
     FileSize = CmGetFileSize (File);
+    AcpiUtConvertLEToHostInt(&TableHeader.Length, 4, &TableHeader.Length, 4);
     if (TableHeader.Length > (UINT32) (FileSize - TableOffset))
     {
         fprintf (stderr, "Table [%4.4s] is too long for file - "
