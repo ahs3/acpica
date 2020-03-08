@@ -378,6 +378,19 @@ RsDoQwordIoDescriptor (
         Descriptor->Address64.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
 
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.ResourceLength, 2,
+    			     &Descriptor->Address64.ResourceLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Minimum, 8,
+    			     &Descriptor->Address64.Minimum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Maximum, 8,
+    			     &Descriptor->Address64.Maximum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.AddressLength, 8,
+    			     &Descriptor->Address64.AddressLength, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Granularity, 8,
+    			     &Descriptor->Address64.Granularity, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.TranslationOffset, 8,
+    			     &Descriptor->Address64.TranslationOffset, 8);
+
     Rnode->BufferLength = sizeof (AML_RESOURCE_ADDRESS64) +
         OptionIndex + StringLength;
     return (Rnode);
@@ -607,6 +620,19 @@ RsDoQwordMemoryDescriptor (
         Descriptor->Address64.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
 
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.ResourceLength, 2,
+    			     &Descriptor->Address64.ResourceLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Minimum, 8,
+    			     &Descriptor->Address64.Minimum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Maximum, 8,
+    			     &Descriptor->Address64.Maximum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.AddressLength, 8,
+    			     &Descriptor->Address64.AddressLength, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Granularity, 8,
+    			     &Descriptor->Address64.Granularity, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.TranslationOffset, 8,
+    			     &Descriptor->Address64.TranslationOffset, 8);
+
     Rnode->BufferLength = sizeof (AML_RESOURCE_ADDRESS64) +
         OptionIndex + StringLength;
     return (Rnode);
@@ -817,6 +843,19 @@ RsDoQwordSpaceDescriptor (
         Descriptor->Address64.Granularity,
         Descriptor->Address64.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
+
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.ResourceLength, 2,
+    			     &Descriptor->Address64.ResourceLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Minimum, 8,
+    			     &Descriptor->Address64.Minimum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Maximum, 8,
+    			     &Descriptor->Address64.Maximum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.AddressLength, 8,
+    			     &Descriptor->Address64.AddressLength, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.Granularity, 8,
+    			     &Descriptor->Address64.Granularity, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address64.TranslationOffset, 8,
+    			     &Descriptor->Address64.TranslationOffset, 8);
 
     Rnode->BufferLength = sizeof (AML_RESOURCE_ADDRESS64) +
         OptionIndex + StringLength;
