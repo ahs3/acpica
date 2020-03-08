@@ -354,6 +354,11 @@ RsDoFixedDmaDescriptor (
             break;
         }
 
+        AcpiUtConvertHostIntToLE(&Descriptor->FixedDma.RequestLines, 2,
+        			 &Descriptor->FixedDma.RequestLines, 2);
+        AcpiUtConvertHostIntToLE(&Descriptor->FixedDma.Channels, 2,
+        			 &Descriptor->FixedDma.Channels, 2);
+
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
@@ -426,6 +431,9 @@ RsDoFixedIoDescriptor (
             AslError (ASL_ERROR, ASL_MSG_RESOURCE_LIST, InitializerOp, NULL);
             break;
         }
+
+	AcpiUtConvertHostIntToLE(&Descriptor->FixedIo.Address, 2,
+				 &Descriptor->FixedIo.Address, 2);
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
@@ -535,6 +543,11 @@ RsDoIoDescriptor (
             AslError (ASL_ERROR, ASL_MSG_RESOURCE_LIST, InitializerOp, NULL);
             break;
         }
+
+	AcpiUtConvertHostIntToLE(&Descriptor->Io.Minimum, 2,
+				 &Descriptor->Io.Minimum, 2);
+	AcpiUtConvertHostIntToLE(&Descriptor->Io.Maximum, 2,
+				 &Descriptor->Io.Maximum, 2);
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
@@ -670,6 +683,8 @@ RsDoIrqDescriptor (
     /* Now we can set the channel mask */
 
     Descriptor->Irq.IrqMask = IrqMask;
+    AcpiUtConvertHostIntToLE(&Descriptor->Irq.IrqMask, 2,
+			     &Descriptor->Irq.IrqMask, 2);
     return (Rnode);
 }
 
@@ -769,5 +784,7 @@ RsDoIrqNoFlagsDescriptor (
     /* Now we can set the interrupt mask */
 
     Descriptor->Irq.IrqMask = IrqMask;
+    AcpiUtConvertHostIntToLE(&Descriptor->Irq.IrqMask, 2,
+			     &Descriptor->Irq.IrqMask, 2);
     return (Rnode);
 }
