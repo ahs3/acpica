@@ -194,6 +194,8 @@ RsDoGeneralRegisterDescriptor (
     Descriptor = Rnode->Buffer;
     Descriptor->GenericReg.DescriptorType = ACPI_RESOURCE_NAME_GENERIC_REGISTER;
     Descriptor->GenericReg.ResourceLength = 12;
+    AcpiUtConvertHostIntToLE(&Descriptor->GenericReg.ResourceLength, 2,
+    			     &Descriptor->GenericReg.ResourceLength, 2);
 
     /* Process all child initialization nodes */
 
@@ -492,6 +494,8 @@ RsDoInterruptDescriptor (
         Descriptor->ExtendedIrq.ResourceLength = (UINT16)
             (Descriptor->ExtendedIrq.ResourceLength + StringLength);
     }
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtendedIrq.ResourceLength, 2,
+			     &Descriptor->ExtendedIrq.ResourceLength, 2);
 
     Rnode->BufferLength =
         (ASL_RESDESC_OFFSET (ExtendedIrq.Interrupts[0]) -
@@ -545,6 +549,8 @@ RsDoVendorLargeDescriptor (
     Descriptor = Rnode->Buffer;
     Descriptor->VendorLarge.DescriptorType = ACPI_RESOURCE_NAME_VENDOR_LARGE;
     Descriptor->VendorLarge.ResourceLength = (UINT16) i;
+    AcpiUtConvertHostIntToLE(&Descriptor->VendorLarge.ResourceLength, 2,
+			     &Descriptor->VendorLarge.ResourceLength, 2);
 
     /* Point to end-of-descriptor for vendor data */
 
