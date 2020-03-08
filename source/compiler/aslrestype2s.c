@@ -476,6 +476,8 @@ RsDoGpioIntDescriptor (
 
     Descriptor = Rnode->Buffer;
     Descriptor->Gpio.ResourceLength = DescriptorSize;
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.ResourceLength, 2,
+    			     &Descriptor->Gpio.ResourceLength, 2);
     Descriptor->Gpio.DescriptorType = ACPI_RESOURCE_NAME_GPIO;
     Descriptor->Gpio.RevisionId = AML_RESOURCE_GPIO_REVISION;
     Descriptor->Gpio.ConnectionType = AML_RESOURCE_GPIO_TYPE_INT;
@@ -492,9 +494,13 @@ RsDoGpioIntDescriptor (
 
     Descriptor->Gpio.PinTableOffset = (UINT16)
         ACPI_PTR_DIFF (InterruptList, Descriptor);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.PinTableOffset, 2,
+    			     &Descriptor->Gpio.PinTableOffset, 2);
 
     Descriptor->Gpio.ResSourceOffset = (UINT16)
         ACPI_PTR_DIFF (ResourceSource, Descriptor);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.ResSourceOffset, 2,
+    			     &Descriptor->Gpio.ResSourceOffset, 2);
 
     /* Process all child initialization nodes */
 
@@ -624,6 +630,13 @@ RsDoGpioIntDescriptor (
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.IntFlags, 2,
+    			     &Descriptor->Gpio.IntFlags, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.DebounceTimeout, 2,
+    			     &Descriptor->Gpio.DebounceTimeout, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.Flags, 2,
+    			     &Descriptor->Gpio.Flags, 2);
+
     MpSaveGpioInfo (Info->MappingOp, Descriptor,
         PinCount, PinList, ResourceSource);
     return (Rnode);
@@ -685,6 +698,8 @@ RsDoGpioIoDescriptor (
 
     Descriptor = Rnode->Buffer;
     Descriptor->Gpio.ResourceLength = DescriptorSize;
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.ResourceLength, 2,
+    			     &Descriptor->Gpio.ResourceLength, 2);
     Descriptor->Gpio.DescriptorType = ACPI_RESOURCE_NAME_GPIO;
     Descriptor->Gpio.RevisionId = AML_RESOURCE_GPIO_REVISION;
     Descriptor->Gpio.ConnectionType = AML_RESOURCE_GPIO_TYPE_IO;
@@ -700,9 +715,13 @@ RsDoGpioIoDescriptor (
 
     Descriptor->Gpio.PinTableOffset = (UINT16)
         ACPI_PTR_DIFF (InterruptList, Descriptor);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.PinTableOffset, 2,
+    			     &Descriptor->Gpio.PinTableOffset, 2);
 
     Descriptor->Gpio.ResSourceOffset = (UINT16)
         ACPI_PTR_DIFF (ResourceSource, Descriptor);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.ResSourceOffset, 2,
+    			     &Descriptor->Gpio.ResSourceOffset, 2);
 
     /* Process all child initialization nodes */
 
@@ -830,6 +849,17 @@ RsDoGpioIoDescriptor (
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.IntFlags, 2,
+    			     &Descriptor->Gpio.IntFlags, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.DebounceTimeout, 2,
+    			     &Descriptor->Gpio.DebounceTimeout, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.DriveStrength, 2,
+    			     &Descriptor->Gpio.DriveStrength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.VendorOffset, 2,
+    			     &Descriptor->Gpio.VendorOffset, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Gpio.Flags, 2,
+    			     &Descriptor->Gpio.Flags, 2);
+
     MpSaveGpioInfo (Info->MappingOp, Descriptor,
         PinCount, PinList, ResourceSource);
     return (Rnode);
@@ -885,11 +915,15 @@ RsDoI2cSerialBusDescriptor (
 
     Descriptor = Rnode->Buffer;
     Descriptor->I2cSerialBus.ResourceLength = DescriptorSize;
+    AcpiUtConvertHostIntToLE(&Descriptor->I2cSerialBus.ResourceLength, 2,
+    			     &Descriptor->I2cSerialBus.ResourceLength, 2);
     Descriptor->I2cSerialBus.DescriptorType = ACPI_RESOURCE_NAME_SERIAL_BUS;
     Descriptor->I2cSerialBus.RevisionId = AML_RESOURCE_I2C_REVISION;
     Descriptor->I2cSerialBus.TypeRevisionId = AML_RESOURCE_I2C_TYPE_REVISION;
     Descriptor->I2cSerialBus.Type = AML_RESOURCE_I2C_SERIALBUSTYPE;
     Descriptor->I2cSerialBus.TypeDataLength = AML_RESOURCE_I2C_MIN_DATA_LEN + VendorLength;
+    AcpiUtConvertHostIntToLE(&Descriptor->I2cSerialBus.TypeDataLength, 2,
+    			     &Descriptor->I2cSerialBus.TypeDataLength, 2);
 
     if (Info->DescriptorTypeOp->Asl.ParseOpcode == PARSEOP_I2C_SERIALBUS_V2)
     {
@@ -990,6 +1024,13 @@ RsDoI2cSerialBusDescriptor (
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
+    AcpiUtConvertHostIntToLE(&Descriptor->I2cSerialBus.SlaveAddress, 2,
+    			     &Descriptor->I2cSerialBus.SlaveAddress, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->I2cSerialBus.ConnectionSpeed, 4,
+    			     &Descriptor->I2cSerialBus.ConnectionSpeed, 4);
+    AcpiUtConvertHostIntToLE(&Descriptor->I2cSerialBus.TypeSpecificFlags, 2,
+    			     &Descriptor->I2cSerialBus.TypeSpecificFlags, 2);
+
     MpSaveSerialInfo (Info->MappingOp, Descriptor, ResourceSource);
     return (Rnode);
 }
@@ -1044,11 +1085,15 @@ RsDoSpiSerialBusDescriptor (
 
     Descriptor = Rnode->Buffer;
     Descriptor->SpiSerialBus.ResourceLength = DescriptorSize;
+    AcpiUtConvertHostIntToLE(&Descriptor->SpiSerialBus.ResourceLength, 2,
+    			     &Descriptor->SpiSerialBus.ResourceLength, 2);
     Descriptor->SpiSerialBus.DescriptorType = ACPI_RESOURCE_NAME_SERIAL_BUS;
     Descriptor->SpiSerialBus.RevisionId = AML_RESOURCE_SPI_REVISION;
     Descriptor->SpiSerialBus.TypeRevisionId = AML_RESOURCE_SPI_TYPE_REVISION;
     Descriptor->SpiSerialBus.Type = AML_RESOURCE_SPI_SERIALBUSTYPE;
     Descriptor->SpiSerialBus.TypeDataLength = AML_RESOURCE_SPI_MIN_DATA_LEN + VendorLength;
+    AcpiUtConvertHostIntToLE(&Descriptor->SpiSerialBus.TypeDataLength, 2,
+    			     &Descriptor->SpiSerialBus.TypeDataLength, 2);
 
     if (Info->DescriptorTypeOp->Asl.ParseOpcode == PARSEOP_SPI_SERIALBUS_V2)
     {
@@ -1178,6 +1223,13 @@ RsDoSpiSerialBusDescriptor (
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
+    AcpiUtConvertHostIntToLE(&Descriptor->SpiSerialBus.DeviceSelection, 2,
+    			     &Descriptor->SpiSerialBus.DeviceSelection, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->SpiSerialBus.ConnectionSpeed, 4,
+    			     &Descriptor->SpiSerialBus.ConnectionSpeed, 4);
+    AcpiUtConvertHostIntToLE(&Descriptor->SpiSerialBus.TypeSpecificFlags, 2,
+    			     &Descriptor->SpiSerialBus.TypeSpecificFlags, 2);
+
     MpSaveSerialInfo (Info->MappingOp, Descriptor, ResourceSource);
     return (Rnode);
 }
@@ -1232,11 +1284,15 @@ RsDoUartSerialBusDescriptor (
 
     Descriptor = Rnode->Buffer;
     Descriptor->UartSerialBus.ResourceLength = DescriptorSize;
+    AcpiUtConvertHostIntToLE(&Descriptor->UartSerialBus.ResourceLength, 2,
+    			     &Descriptor->UartSerialBus.ResourceLength, 2);
     Descriptor->UartSerialBus.DescriptorType = ACPI_RESOURCE_NAME_SERIAL_BUS;
     Descriptor->UartSerialBus.RevisionId = AML_RESOURCE_UART_REVISION;
     Descriptor->UartSerialBus.TypeRevisionId = AML_RESOURCE_UART_TYPE_REVISION;
     Descriptor->UartSerialBus.Type = AML_RESOURCE_UART_SERIALBUSTYPE;
     Descriptor->UartSerialBus.TypeDataLength = AML_RESOURCE_UART_MIN_DATA_LEN + VendorLength;
+    AcpiUtConvertHostIntToLE(&Descriptor->UartSerialBus.TypeDataLength, 2,
+    			     &Descriptor->UartSerialBus.TypeDataLength, 2);
 
     if (Info->DescriptorTypeOp->Asl.ParseOpcode == PARSEOP_UART_SERIALBUS_V2)
     {
@@ -1381,6 +1437,15 @@ RsDoUartSerialBusDescriptor (
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
+
+    AcpiUtConvertHostIntToLE(&Descriptor->UartSerialBus.DefaultBaudRate, 4,
+    			     &Descriptor->UartSerialBus.DefaultBaudRate, 4);
+    AcpiUtConvertHostIntToLE(&Descriptor->UartSerialBus.TypeSpecificFlags, 2,
+    			     &Descriptor->UartSerialBus.TypeSpecificFlags, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->UartSerialBus.RxFifoSize, 2,
+    			     &Descriptor->UartSerialBus.RxFifoSize, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->UartSerialBus.TxFifoSize, 2,
+    			     &Descriptor->UartSerialBus.TxFifoSize, 2);
 
     MpSaveSerialInfo (Info->MappingOp, Descriptor, ResourceSource);
     return (Rnode);
