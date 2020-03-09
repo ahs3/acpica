@@ -486,6 +486,7 @@ DtSetSubtableLength (
         return;
     }
 
+    AcpiUtConvertHostIntToLE(&Subtable->TotalLength, 4, &Subtable->TotalLength, 4);
     memcpy (Subtable->LengthField, &Subtable->TotalLength,
         Subtable->SizeOfLengthField);
 }
