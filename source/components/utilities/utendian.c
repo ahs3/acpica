@@ -95,6 +95,17 @@ __SwapBytes (
 	        }
 	        break;
 
+	    case 6:  /* 6-byte entity: odd case for things like OEM ID */
+	        {
+		    Dst[0] = Ptr[5];
+		    Dst[1] = Ptr[4];
+		    Dst[2] = Ptr[3];
+		    Dst[3] = Ptr[2];
+		    Dst[4] = Ptr[1];
+		    Dst[5] = Ptr[0];
+	        }
+	        break;
+
             case 8:  /* 64-bit quantity */
 	        {
 		    Dst[0] = Ptr[7];
