@@ -1289,7 +1289,9 @@ AcpiDmDumpTable (
             /* Checksum, display and validate */
 
             AcpiOsPrintf ("%2.2X", *Target);
-	    AcpiUtConvertLEToHostInt(&Table->Length, 4, &Table->Length);
+	    AcpiUtConvertLEToHostInt(
+	    		&ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Length, 4, 
+	    		&ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Length, 4);
             Temp8 = AcpiDmGenerateChecksum (Table,
                 ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Length,
                 ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Checksum);
