@@ -454,6 +454,7 @@ DtCompileMpst (
 
     MpstChannelInfo = ACPI_CAST_PTR (ACPI_MPST_CHANNEL, Subtable->Buffer);
     SubtableCount = MpstChannelInfo->PowerNodeCount;
+    AcpiUtConvertLEToHostInt(&SubtableCount, 2, &SubtableCount, 2);
 
     while (*PFieldList && SubtableCount)
     {
@@ -472,7 +473,9 @@ DtCompileMpst (
 
         MpstPowerNode = ACPI_CAST_PTR (ACPI_MPST_POWER_NODE, Subtable->Buffer);
         PowerStateCount = MpstPowerNode->NumPowerStates;
+        AcpiUtConvertLEToHostInt(&PowerStateCount, 4, &PowerStateCount, 4);
         ComponentCount = MpstPowerNode->NumPhysicalComponents;
+        AcpiUtConvertLEToHostInt(&ComponentCount, 4, &ComponentCount, 4);
 
         ParentTable = DtPeekSubtable ();
 
@@ -625,6 +628,7 @@ DtCompileNfit (
     UINT32                  Count;
     ACPI_NFIT_INTERLEAVE    *Interleave = NULL;
     ACPI_NFIT_FLUSH_ADDRESS *Hint = NULL;
+    UINT16                  SubType;
 
 
     /* Main table */
@@ -657,8 +661,10 @@ DtCompileNfit (
         DtPushSubtable (Subtable);
 
         NfitHeader = ACPI_CAST_PTR (ACPI_NFIT_HEADER, Subtable->Buffer);
+	SubType = NfitHeader->Type;
+	AcpiUtConvertLEToHostInt(&SubType, 2, &SubType, 2);
 
-        switch (NfitHeader->Type)
+        switch (SubType)
         {
         case ACPI_NFIT_TYPE_SYSTEM_ADDRESS:
 
@@ -718,7 +724,7 @@ DtCompileNfit (
         DtInsertSubtable (ParentTable, Subtable);
         DtPopSubtable ();
 
-        switch (NfitHeader->Type)
+        switch (SubType)
         {
         case ACPI_NFIT_TYPE_INTERLEAVE:
 
@@ -745,6 +751,8 @@ DtCompileNfit (
             }
 
             Interleave->LineCount = Count;
+	    AcpiUtConvertHostIntToLE(&Interleave->LineCount, 4,
+	    			     &Interleave->LineCount, 4);
             break;
 
         case ACPI_NFIT_TYPE_SMBIOS:
@@ -790,6 +798,7 @@ DtCompileNfit (
             }
 
             Hint->HintCount = (UINT16) Count;
+	    AcpiUtConvertHostIntToLE(&Hint->HintCount, 2, &Hint->HintCount, 2);
             break;
 
         default:
@@ -1285,6 +1294,7 @@ DtCompileS3pt (
     DT_SUBTABLE             *ParentTable;
     ACPI_DMTABLE_INFO       *InfoTable;
     DT_FIELD                *SubtableStart;
+    UINT16                  HdrType;
 
 
     Status = DtCompileTable (PFieldList, AcpiDmTableInfoS3pt,
@@ -1311,8 +1321,10 @@ DtCompileS3pt (
         DtPushSubtable (Subtable);
 
         S3ptHeader = ACPI_CAST_PTR (ACPI_FPDT_HEADER, Subtable->Buffer);
+	HdrType = S3ptHeader->Type;
+	AcpiUtConvertLEToHostInt(&HdrType, 2, &HdrType, 2);
 
-        switch (S3ptHeader->Type)
+        switch (HdrType)
         {
         case ACPI_S3PT_TYPE_RESUME:
 
@@ -1638,6 +1650,7 @@ DtCompileSlit (
     DtInsertSubtable (ParentTable, Subtable);
 
     Localities = *ACPI_CAST_PTR (UINT32, Subtable->Buffer);
+    AcpiUtConvertHostIntToLE(&Localities, 4, &Localities, 4);
     LocalityBuffer = UtLocalCalloc (Localities);
     LocalityListLength = 0;
 
@@ -1849,6 +1862,7 @@ DtCompileTcpa (
     ACPI_TABLE_TCPA_HDR     *TcpaHeader;
     DT_SUBTABLE             *ParentTable;
     ACPI_STATUS             Status;
+    UINT16                  PlatClass;
 
 
     /* Compile the main table */
@@ -1868,8 +1882,10 @@ DtCompileTcpa (
      * Either a client or server table. Only one.
      */
     TcpaHeader = ACPI_CAST_PTR (ACPI_TABLE_TCPA_HDR, ParentTable->Buffer);
+    PlatClass = TcpaHeader->PlatformClass;
+    AcpiUtConvertLEToHostInt(&PlatClass, 2, &PlatClass, 2);
 
-    switch (TcpaHeader->PlatformClass)
+    switch (PlatClass)
     {
     case ACPI_TCPA_CLIENT_TABLE:
 
@@ -1917,6 +1933,7 @@ DtCompileTpm2Rev3 (
     ACPI_TABLE_TPM23        *Tpm23Header;
     DT_SUBTABLE             *ParentTable;
     ACPI_STATUS             Status = AE_OK;
+    UINT32		    StartMethod;
 
 
     Status = DtCompileTable (PFieldList, AcpiDmTableInfoTpm23,
@@ -1925,10 +1942,12 @@ DtCompileTpm2Rev3 (
     ParentTable = DtPeekSubtable ();
     DtInsertSubtable (ParentTable, Subtable);
     Tpm23Header = ACPI_CAST_PTR (ACPI_TABLE_TPM23, ParentTable->Buffer);
+    StartMethod = Tpm23Header->StartMethod;
+    AcpiUtConvertLEToHostInt(&StartMethod, 4, &StartMethod, 4);
 
     /* Subtable type depends on the StartMethod */
 
-    switch (Tpm23Header->StartMethod)
+    switch (StartMethod)
     {
     case ACPI_TPM23_ACPI_START_METHOD:
 
@@ -1975,6 +1994,7 @@ DtCompileTpm2 (
     DT_SUBTABLE             *ParentTable;
     ACPI_STATUS             Status = AE_OK;
     ACPI_TABLE_HEADER       *Header;
+    UINT32                  StartMethod;
 
 
     ParentTable = DtPeekSubtable ();
@@ -2017,8 +2037,10 @@ DtCompileTpm2 (
 
 
     /* Subtable type depends on the StartMethod */
+    StartMethod = Tpm2Header->StartMethod;
+    AcpiUtConvertLEToHostInt(&StartMethod, 4, &StartMethod, 4);
 
-    switch (Tpm2Header->StartMethod)
+    switch (StartMethod)
     {
     case ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC:
 
@@ -2234,6 +2256,9 @@ DtCompileWpbt (
     ACPI_TABLE_WPBT         *Table;
     ACPI_STATUS             Status;
     UINT16                  Length;
+    UINT16                  *Ptr16;
+    UINT32                  ii;
+
 
 
     /* Compile the main table */
@@ -2262,6 +2287,13 @@ DtCompileWpbt (
     Length = (UINT16) Subtable->TotalLength;
     Table = ACPI_CAST_PTR (ACPI_TABLE_WPBT, ParentTable->Buffer);
     Table->ArgumentsLength = Length;
+    AcpiUtConvertHostIntToLE(&Table->ArgumentsLength, 2,
+    			     &Table->ArgumentsLength, 2);
+
+    /* The arguments are in Unicode, so make sure the byte order is correct */
+    Ptr16 = (UINT16 *)Subtable->Buffer;
+    for (ii = 0; ii < Length; Ptr16++, ii++)
+	AcpiUtConvertHostIntToLE(&Ptr16, 2, &Ptr16, 2);
 
     ParentTable = DtPeekSubtable ();
     DtInsertSubtable (ParentTable, Subtable);
