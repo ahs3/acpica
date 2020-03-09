@@ -352,6 +352,7 @@ AcpiDmPredefinedDescription (
     char                        *NameString;
     int                         LastCharIsDigit;
     int                         LastCharsAreHex;
+    char                        TmpName[ACPI_NAMESEG_SIZE + 1];
 
 
     if (!Op)
@@ -368,8 +369,10 @@ AcpiDmPredefinedDescription (
     Op->Common.DisasmFlags |= ACPI_PARSEOP_PREDEFINED_CHECKED;
 
     /* Predefined name must start with an underscore */
-
-    NameString = ACPI_CAST_PTR (char, &Op->Named.Name);
+    memset(TmpName, 0, ACPI_NAMESEG_SIZE + 1);
+    memcpy(TmpName, &Op->Named.Name, ACPI_NAMESEG_SIZE);
+    AcpiUtConvertLEToHostInt(&TmpName, 4, &TmpName, 4);
+    NameString = TmpName;
     if (NameString[0] != '_')
     {
         return;
@@ -988,25 +991,29 @@ AcpiDmDisassembleOneOp (
         AcpiDmNamestring (Op->Common.Value.Name);
         break;
 
-    case AML_INT_NAMEDFIELD_OP:
+    case AML_INT_NAMEDFIELD_OP: {
 
-        Length = AcpiDmDumpName (Op->Named.Name);
+        UINT32 TmpName;
+
+        AcpiUtConvertLEToHostInt(&Op->Named.Name, 4, &TmpName, 4);
+        Length = AcpiDmDumpName (TmpName);
 
         AcpiOsPrintf (",");
         ASL_CV_PRINT_ONE_COMMENT (Op, AML_NAMECOMMENT, NULL, 0);
         AcpiOsPrintf ("%*.s  %u", (unsigned) (5 - Length), " ",
-            (UINT32) Op->Common.Value.Integer);
+            (UINT32) Op->Common.Value.Size);
 
         AcpiDmCommaIfFieldMember (Op);
 
-        Info->BitOffset += (UINT32) Op->Common.Value.Integer;
+        Info->BitOffset += (UINT32) Op->Common.Value.Size;
         break;
+    }
 
     case AML_INT_RESERVEDFIELD_OP:
 
         /* Offset() -- Must account for previous offsets */
 
-        Offset = (UINT32) Op->Common.Value.Integer;
+        Offset = Op->Common.Value.Size;
         Info->BitOffset += Offset;
 
         if (Info->BitOffset % 8 == 0)
@@ -1053,7 +1060,7 @@ AcpiDmDisassembleOneOp (
             AcpiOsPrintf ("\n");
 
             Aml = Child->Named.Data;
-            Length = (UINT32) Child->Common.Value.Integer;
+            Length = (UINT32) Child->Common.Value.Size;
 
             Info->Level += 1;
             Info->MappingOp = Op;
