@@ -262,6 +262,9 @@ AdCreateTableHeader (
      */
     AdDisassemblerHeader (Filename, ACPI_IS_AML_TABLE);
 
+    AcpiUtConvertLEToHostInt(&Table->Signature, 4, &Table->Signature, 4);
+    AcpiUtConvertLEToHostInt(&Table->Length, 4, &Table->Length, 4);
+
     AcpiOsPrintf (" * Original Table Header:\n");
     AcpiOsPrintf (" *     Signature        \"%4.4s\"\n",    Table->Signature);
     AcpiOsPrintf (" *     Length           0x%8.8X (%u)\n", Table->Length, Table->Length);
@@ -304,10 +307,15 @@ AdCreateTableHeader (
     }
 
     AcpiOsPrintf ("\n");
+    AcpiUtConvertLEToHostInt(&Table->OemId, 6, &Table->OemId, 6);
     AcpiOsPrintf (" *     OEM ID           \"%.6s\"\n",     Table->OemId);
+    AcpiUtConvertLEToHostInt(&Table->OemTableId, 8, &Table->OemTableId, 8);
     AcpiOsPrintf (" *     OEM Table ID     \"%.8s\"\n",     Table->OemTableId);
+    AcpiUtConvertLEToHostInt(&Table->OemRevision, 4, &Table->OemRevision, 4);
     AcpiOsPrintf (" *     OEM Revision     0x%8.8X (%u)\n", Table->OemRevision, Table->OemRevision);
+    AcpiUtConvertLEToHostInt(&Table->AslCompilerId, 4, &Table->AslCompilerId, 4);
     AcpiOsPrintf (" *     Compiler ID      \"%.4s\"\n",     Table->AslCompilerId);
+    AcpiUtConvertLEToHostInt(&Table->AslCompilerRevision, 4, &Table->AslCompilerRevision, 4);
     AcpiOsPrintf (" *     Compiler Version 0x%8.8X (%u)\n", Table->AslCompilerRevision, Table->AslCompilerRevision);
     AcpiOsPrintf (" */\n");
 
@@ -504,7 +512,9 @@ AdParseTable (
 
     fprintf (stderr, "Pass 1 parse of [%4.4s]\n", (char *) Table->Signature);
 
-    AmlLength = Table->Length - sizeof (ACPI_TABLE_HEADER);
+    AmlLength = Table->Length;
+    AcpiUtConvertLEToHostInt(&AmlLength, 4, &AmlLength, 4);
+    AmlLength -= sizeof (ACPI_TABLE_HEADER);
     AmlStart = ((UINT8 *) Table + sizeof (ACPI_TABLE_HEADER));
 
     AcpiUtSetIntegerWidth (Table->Revision);
