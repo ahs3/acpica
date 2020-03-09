@@ -48,7 +48,7 @@
         ACPI_MODULE_NAME    ("utendian")
 
 
-#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP)
+#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP || ACPI_NAMES_APP)
 /*
  * Endianness support functions.
  *
@@ -216,6 +216,7 @@ AcpiUtConvertHostIntToLE (
  ******************************************************************************/
 
 #ifdef ACPI_BIG_ENDIAN
+
 void
 AcpiUtConvertLEToHostInt (
     void                    *SrcPtr,
@@ -235,6 +236,7 @@ AcpiUtConvertLEToHostInt (
     void                    *DstPtr,
     UINT32                  DstCount)
 { }
+
 #endif
 
 #endif

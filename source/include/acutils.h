@@ -1272,7 +1272,7 @@ AcpiUtConvertStringToUuid (
 /*
  * utendian -- byte-swapping for big-endian support
  */
-#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP)
+#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP || defined ACPI_NAMES_APP)
 void
 AcpiUtConvertHostIntToLE (
     void                    *SrcPtr,
