@@ -250,6 +250,11 @@ AdCreateTableHeader (
     ACPI_TABLE_HEADER       *Table)
 {
     UINT8                   Checksum;
+    UINT32                  Signature;
+    UINT8                   OemId[ACPI_NAMESEG_SIZE + 3];
+    UINT64                  OemTableId;
+    UINT32                  OemRevision;
+    UINT32                  Tmp32;
 
 
     /* Reset globals for External statements */
@@ -262,12 +267,15 @@ AdCreateTableHeader (
      */
     AdDisassemblerHeader (Filename, ACPI_IS_AML_TABLE);
 
-    AcpiUtConvertLEToHostInt(&Table->Signature, 4, &Table->Signature, 4);
-    AcpiUtConvertLEToHostInt(&Table->Length, 4, &Table->Length, 4);
-
     AcpiOsPrintf (" * Original Table Header:\n");
-    AcpiOsPrintf (" *     Signature        \"%4.4s\"\n",    Table->Signature);
-    AcpiOsPrintf (" *     Length           0x%8.8X (%u)\n", Table->Length, Table->Length);
+
+    memcpy((char *)&Signature, Table->Signature, ACPI_NAMESEG_SIZE);
+    AcpiUtConvertLEToHostInt(&Signature, 4, &Signature, 4);
+    AcpiOsPrintf (" *     Signature        \"%4.4s\"\n",    (char *)&Signature);
+
+    Tmp32 = Table->Length;
+    AcpiUtConvertLEToHostInt(&Tmp32, 4, &Tmp32, 4);
+    AcpiOsPrintf (" *     Length           0x%8.8X (%u)\n", Tmp32, Tmp32);
 
     /* Print and validate the revision */
 
@@ -307,16 +315,28 @@ AdCreateTableHeader (
     }
 
     AcpiOsPrintf ("\n");
-    AcpiUtConvertLEToHostInt(&Table->OemId, 6, &Table->OemId, 6);
-    AcpiOsPrintf (" *     OEM ID           \"%.6s\"\n",     Table->OemId);
-    AcpiUtConvertLEToHostInt(&Table->OemTableId, 8, &Table->OemTableId, 8);
-    AcpiOsPrintf (" *     OEM Table ID     \"%.8s\"\n",     Table->OemTableId);
-    AcpiUtConvertLEToHostInt(&Table->OemRevision, 4, &Table->OemRevision, 4);
-    AcpiOsPrintf (" *     OEM Revision     0x%8.8X (%u)\n", Table->OemRevision, Table->OemRevision);
-    AcpiUtConvertLEToHostInt(&Table->AslCompilerId, 4, &Table->AslCompilerId, 4);
-    AcpiOsPrintf (" *     Compiler ID      \"%.4s\"\n",     Table->AslCompilerId);
-    AcpiUtConvertLEToHostInt(&Table->AslCompilerRevision, 4, &Table->AslCompilerRevision, 4);
-    AcpiOsPrintf (" *     Compiler Version 0x%8.8X (%u)\n", Table->AslCompilerRevision, Table->AslCompilerRevision);
+
+    memset(OemId, 0, ACPI_NAMESEG_SIZE + 3);
+    memcpy(OemId, &Table->OemId, 6);
+    AcpiUtConvertLEToHostInt(OemId, 6, OemId, 6);
+    AcpiOsPrintf (" *     OEM ID           \"%.6s\"\n",     OemId);
+
+    memcpy((char *)&OemTableId, Table->OemTableId, 6);
+    AcpiUtConvertLEToHostInt(&OemTableId, 8, &OemTableId, 8);
+    AcpiOsPrintf (" *     OEM Table ID     \"%.8s\"\n",     (char *)&OemTableId);
+
+    OemRevision = Table->OemRevision;
+    AcpiUtConvertLEToHostInt(&OemRevision, 4, &OemRevision, 4);
+    AcpiOsPrintf (" *     OEM Revision     0x%8.8X (%u)\n", OemRevision, OemRevision);
+
+    memcpy(&Tmp32, Table->AslCompilerId, ACPI_NAMESEG_SIZE);
+    AcpiUtConvertLEToHostInt(&Tmp32, 4, &Tmp32, 4);
+    AcpiOsPrintf (" *     Compiler ID      \"%.4s\"\n",     (char *)&Tmp32);
+
+    Tmp32 = Table->AslCompilerRevision;
+    AcpiUtConvertLEToHostInt(&Tmp32, 4, &Tmp32, 4);
+    AcpiOsPrintf (" *     Compiler Version 0x%8.8X (%u)\n", Tmp32, Tmp32);
+
     AcpiOsPrintf (" */\n");
 
     /*
@@ -333,11 +353,17 @@ AdCreateTableHeader (
      * Note: the AMLFilename string is left zero-length in order to just let
      * the compiler create it when the disassembled file is compiled. This
      * makes it easier to rename the disassembled ASL file if needed.
+     *
+     * NB =>
+     *	Table->Signature	=> Signature
+     *  Table->OemId		=> OemId
+     *  Table->OemTableId	=> OemTableId
+     *  Table->OemRevision	=> OemRevision
      */
     AcpiOsPrintf (
         "DefinitionBlock (\"\", \"%4.4s\", %u, \"%.6s\", \"%.8s\", 0x%8.8X)\n",
-        Table->Signature, Table->Revision,
-        Table->OemId, Table->OemTableId, Table->OemRevision);
+        (char *)&Signature, Table->Revision, OemId, (char *)&OemTableId,
+	OemRevision);
 }
 
 
