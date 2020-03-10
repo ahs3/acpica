@@ -48,7 +48,6 @@
         ACPI_MODULE_NAME    ("utendian")
 
 
-#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP || ACPI_NAMES_APP)
 /*
  * Endianness support functions.
  *
@@ -250,4 +249,3 @@ AcpiUtConvertLEToHostInt (
 
 #endif
 
-#endif

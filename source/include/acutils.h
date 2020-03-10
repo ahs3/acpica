@@ -1272,7 +1272,6 @@ AcpiUtConvertStringToUuid (
 /*
  * utendian -- byte-swapping for big-endian support
  */
-#if (defined ACPI_ASL_COMPILER || defined ACPI_EXEC_APP || defined ACPI_HELP_APP || defined ACPI_NAMES_APP)
 void
 AcpiUtConvertHostIntToLE (
     void                    *SrcPtr,
@@ -1286,6 +1285,5 @@ AcpiUtConvertLEToHostInt (
     UINT32                  SrcCount,
     void                    *DstPtr,
     UINT32                  DstCount);
-#endif
 
 #endif /* _ACUTILS_H */
