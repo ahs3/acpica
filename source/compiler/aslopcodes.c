@@ -620,6 +620,7 @@ OpcDoUnicode (
     for (i = 0; i < Count; i++)
     {
         UnicodeString[i] = (UINT16) AsciiString[i];
+	AcpiUtConvertHostIntToLE(&UnicodeString[i], 2, &UnicodeString[i], 2);
     }
 
     /*
