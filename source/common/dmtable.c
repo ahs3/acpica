@@ -660,6 +660,7 @@ AcpiDmDumpDataTable (
     if (ACPI_COMPARE_NAMESEG (Table->Signature, ACPI_SIG_FACS))
     {
         Length = Table->Length;
+	AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
         Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoFacs);
         if (ACPI_FAILURE (Status))
         {
@@ -673,6 +674,7 @@ AcpiDmDumpDataTable (
     else if (ACPI_COMPARE_NAMESEG (Table->Signature, ACPI_SIG_S3PT))
     {
         Length = AcpiDmDumpS3pt (Table);
+	AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
     }
     else
     {
@@ -680,6 +682,7 @@ AcpiDmDumpDataTable (
          * All other tables must use the common ACPI table header, dump it now
          */
         Length = Table->Length;
+	AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
         Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoHeader);
         if (ACPI_FAILURE (Status))
         {
@@ -1286,6 +1289,9 @@ AcpiDmDumpTable (
             /* Checksum, display and validate */
 
             AcpiOsPrintf ("%2.2X", *Target);
+	    AcpiUtConvertLEToHostInt(
+	    		&ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Length, 4, 
+	    		&ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Length, 4);
             Temp8 = AcpiDmGenerateChecksum (Table,
                 ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Length,
                 ACPI_CAST_PTR (ACPI_TABLE_HEADER, Table)->Checksum);
@@ -1353,6 +1359,7 @@ AcpiDmDumpTable (
             /* DMAR subtable types */
 
             Temp16 = ACPI_GET16 (Target);
+	    AcpiUtConvertLEToHostInt(&Temp16, 2, &Temp16, 2);
             if (Temp16 > ACPI_DMAR_TYPE_RESERVED)
             {
                 Temp16 = ACPI_DMAR_TYPE_RESERVED;
@@ -1451,6 +1458,7 @@ AcpiDmDumpTable (
             /* HEST subtable types */
 
             Temp16 = ACPI_GET16 (Target);
+	    AcpiUtConvertLEToHostInt(&Temp16, 2, &Temp16, 2);
             if (Temp16 > ACPI_HEST_TYPE_RESERVED)
             {
                 Temp16 = ACPI_HEST_TYPE_RESERVED;
@@ -1538,6 +1546,7 @@ AcpiDmDumpTable (
             /* NFIT subtable types */
 
             Temp16 = ACPI_GET16 (Target);
+	    AcpiUtConvertLEToHostInt(&Temp16, 2, &Temp16, 2);
             if (Temp16 > ACPI_NFIT_TYPE_RESERVED)
             {
                 Temp16 = ACPI_NFIT_TYPE_RESERVED;
