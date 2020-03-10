@@ -1269,4 +1269,33 @@ AcpiUtConvertStringToUuid (
     UINT8                   *UuidBuffer);
 #endif
 
+/*
+ * utendian -- byte-swapping for big-endian support
+ */
+void
+AcpiUtConvertHostIntToLE (
+    void                    *DstPtr,
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount);
+
+void
+AcpiUtConvertLEToHostInt (
+    void                    *DstPtr,
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount);
+
+void
+AcpiUtConvertHostPathToLE (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount);
+
+void
+AcpiUtConvertLEToHostPath (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount);
+
 #endif /* _ACUTILS_H */
