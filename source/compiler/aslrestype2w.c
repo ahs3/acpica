@@ -378,6 +378,19 @@ RsDoWordIoDescriptor (
         Descriptor->Address16.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
 
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.ResourceLength, 2,
+    		      	     &Descriptor->Address16.ResourceLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Minimum, 2,
+    		      	     &Descriptor->Address16.Minimum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Maximum, 2,
+    		      	     &Descriptor->Address16.Maximum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.AddressLength, 2,
+    		      	     &Descriptor->Address16.AddressLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Granularity, 2,
+    		      	     &Descriptor->Address16.Granularity, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.TranslationOffset, 2,
+    		      	     &Descriptor->Address16.TranslationOffset, 2);
+
     Rnode->BufferLength = sizeof (AML_RESOURCE_ADDRESS16) +
         OptionIndex + StringLength;
     return (Rnode);
@@ -582,6 +595,19 @@ RsDoWordBusNumberDescriptor (
         (UINT64) Descriptor->Address16.Granularity,
         Descriptor->Address16.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
+
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.ResourceLength, 2,
+    		      	     &Descriptor->Address16.ResourceLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Minimum, 2,
+    		      	     &Descriptor->Address16.Minimum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Maximum, 2,
+    		      	     &Descriptor->Address16.Maximum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.AddressLength, 2,
+    		      	     &Descriptor->Address16.AddressLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Granularity, 2,
+    		      	     &Descriptor->Address16.Granularity, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.TranslationOffset, 2,
+    		      	     &Descriptor->Address16.TranslationOffset, 2);
 
     Rnode->BufferLength = sizeof (AML_RESOURCE_ADDRESS16) +
         OptionIndex + StringLength;
@@ -798,6 +824,19 @@ RsDoWordSpaceDescriptor (
         (UINT64) Descriptor->Address16.Granularity,
         Descriptor->Address16.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
+
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.ResourceLength, 2,
+    		      	     &Descriptor->Address16.ResourceLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Minimum, 2,
+    		      	     &Descriptor->Address16.Minimum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Maximum, 2,
+    		      	     &Descriptor->Address16.Maximum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.AddressLength, 2,
+    		      	     &Descriptor->Address16.AddressLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.Granularity, 2,
+    		      	     &Descriptor->Address16.Granularity, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Address16.TranslationOffset, 2,
+    		      	     &Descriptor->Address16.TranslationOffset, 2);
 
     Rnode->BufferLength = sizeof (AML_RESOURCE_ADDRESS16) +
         OptionIndex + StringLength;
