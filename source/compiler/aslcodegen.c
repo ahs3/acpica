@@ -153,6 +153,7 @@
 #include "aslcompiler.y.h"
 #include "amlcode.h"
 #include "acconvert.h"
+#include "acutils.h"
 
 #define _COMPONENT          ACPI_COMPILER
         ACPI_MODULE_NAME    ("aslcodegen")
@@ -354,6 +355,7 @@ CgWriteAmlOpcode (
         UINT32                  Len;
         UINT8                   LenBytes[4];
     } PkgLen;
+    UINT16                      CurrentOpcode;
 
 
     /* We expect some DEFAULT_ARGs, just ignore them */
@@ -405,33 +407,39 @@ CgWriteAmlOpcode (
         Aml.Opcode = Op->Asl.AmlOpcode;
         break;
     }
+    CurrentOpcode = Aml.Opcode;
+    AcpiUtConvertHostIntToLE(&Aml.Opcode, 2, &Aml.Opcode, 2);
 
 
-    switch (Aml.Opcode)
+    switch (CurrentOpcode)
     {
     case AML_PACKAGE_LENGTH:
 
         /* Value is the length to be encoded (Used in field definitions) */
 
         PkgLen.Len = (UINT32) Op->Asl.Value.Integer;
+	AcpiUtConvertHostIntToLE(&PkgLen.Len, 4, &PkgLen.Len, 4);
         break;
 
     default:
 
         /* Check for two-byte opcode */
 
-        if (Aml.Opcode > 0x00FF)
-        {
-            /* Write the high byte first */
+       	if (CurrentOpcode > 0x00FF)
+       	{
+       		/* Write the high byte first */
 
-            CgLocalWriteAmlData (Op, &Aml.OpcodeBytes[1], 1);
-        }
+        	AcpiUtConvertHostIntToLE(&Aml.OpcodeBytes, 2,
+		                         &Aml.OpcodeBytes, 2);
+       		CgLocalWriteAmlData (Op, &Aml.OpcodeBytes[1], 1);
+       	}
 
         CgLocalWriteAmlData (Op, &Aml.OpcodeBytes[0], 1);
 
         /* Subtreelength doesn't include length of package length bytes */
 
         PkgLen.Len = Op->Asl.AmlSubtreeLength + Op->Asl.AmlPkgLenBytes;
+	AcpiUtConvertHostIntToLE(&PkgLen.Len, 4, &PkgLen.Len, 4);
         break;
     }
 
@@ -474,25 +482,33 @@ CgWriteAmlOpcode (
         }
     }
 
-    switch (Aml.Opcode)
+    switch (CurrentOpcode)
     {
     case AML_BYTE_OP:
 
+        AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 1,
+				 &Op->Asl.Value.Integer, 8);
         CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, 1);
         break;
 
     case AML_WORD_OP:
 
+        AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 2,
+	                         &Op->Asl.Value.Integer, 8);
         CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, 2);
-       break;
+        break;
 
     case AML_DWORD_OP:
 
+        AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 4,
+	                         &Op->Asl.Value.Integer, 8);
         CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, 4);
         break;
 
     case AML_QWORD_OP:
 
+        AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 8,
+	                         &Op->Asl.Value.Integer, 8);
         CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, 8);
         break;
 
@@ -558,6 +574,8 @@ CgWriteTableHeader (
     }
 
     ACPI_COPY_NAMESEG (AslGbl_TableHeader.Signature, Child->Asl.Value.String);
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.Signature, 4,
+    			     &AslGbl_TableHeader.Signature, 4);
 
     /* Revision */
 
@@ -576,25 +594,35 @@ CgWriteTableHeader (
     Child = Child->Asl.Next;
     memcpy (AslGbl_TableHeader.OemId, Child->Asl.Value.String,
         strlen (Child->Asl.Value.String));
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.OemId, 6,
+    			     &AslGbl_TableHeader.OemId, 6);
 
     /* OEM TableID */
 
     Child = Child->Asl.Next;
     memcpy (AslGbl_TableHeader.OemTableId, Child->Asl.Value.String,
         strlen (Child->Asl.Value.String));
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.OemTableId, 4,
+    			     &AslGbl_TableHeader.OemTableId, 4);
 
     /* OEM Revision */
 
     Child = Child->Asl.Next;
     AslGbl_TableHeader.OemRevision = (UINT32) Child->Asl.Value.Integer;
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.OemRevision, 4,
+    			     &AslGbl_TableHeader.OemRevision, 4);
 
     /* Compiler ID */
 
     ACPI_COPY_NAMESEG (AslGbl_TableHeader.AslCompilerId, ASL_CREATOR_ID);
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.AslCompilerId, 4,
+    			     &AslGbl_TableHeader.AslCompilerId, 4);
 
     /* Compiler version */
 
     AslGbl_TableHeader.AslCompilerRevision = ACPI_CA_VERSION;
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.AslCompilerRevision, 4,
+    			     &AslGbl_TableHeader.AslCompilerRevision, 4);
 
     /* Table length. Checksum zero for now, will rewrite later */
 
@@ -645,6 +673,8 @@ CgWriteTableHeader (
             CvDbgPrint ("    Length: %u\n", CommentLength);
         }
     }
+    AcpiUtConvertHostIntToLE(&AslGbl_TableHeader.Length, 4,
+    			     &AslGbl_TableHeader.Length, 4);
 
     AslGbl_TableHeader.Checksum = 0;
     Op->Asl.FinalAmlOffset = ftell (AslGbl_Files[ASL_FILE_AML_OUTPUT].Handle);
@@ -757,10 +787,28 @@ CgWriteNode (
     switch (Op->Asl.AmlOpcode)
     {
     case AML_RAW_DATA_BYTE:
+
+        CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, Op->Asl.AmlLength);
+        return;
+
     case AML_RAW_DATA_WORD:
+
+	AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 2,
+	                         &Op->Asl.Value.Integer, 8);
+        CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, Op->Asl.AmlLength);
+        return;
+
     case AML_RAW_DATA_DWORD:
+
+	AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 4,
+	                         &Op->Asl.Value.Integer, 8);
+        CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, Op->Asl.AmlLength);
+        return;
+
     case AML_RAW_DATA_QWORD:
 
+	AcpiUtConvertHostIntToLE(&Op->Asl.Value.Integer, 8,
+	                         &Op->Asl.Value.Integer, 8);
         CgLocalWriteAmlData (Op, &Op->Asl.Value.Integer, Op->Asl.AmlLength);
         return;
 
