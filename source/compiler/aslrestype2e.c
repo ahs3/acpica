@@ -329,6 +329,19 @@ RsDoExtendedIoDescriptor (
         Descriptor->ExtAddress64.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
 
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Minimum, 8,
+    			     &Descriptor->ExtAddress64.Minimum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Maximum, 8,
+    			     &Descriptor->ExtAddress64.Maximum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.AddressLength, 8,
+    			     &Descriptor->ExtAddress64.AddressLength, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Granularity, 8,
+    			     &Descriptor->ExtAddress64.Granularity, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.TranslationOffset, 8,
+    			     &Descriptor->ExtAddress64.TranslationOffset, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.TypeSpecific, 8,
+    			     &Descriptor->ExtAddress64.TypeSpecific, 8);
+
     Rnode->BufferLength = sizeof (AML_RESOURCE_EXTENDED_ADDRESS64) +
         StringLength;
     return (Rnode);
@@ -510,6 +523,19 @@ RsDoExtendedMemoryDescriptor (
         Descriptor->ExtAddress64.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
 
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Minimum, 8,
+    			     &Descriptor->ExtAddress64.Minimum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Maximum, 8,
+    			     &Descriptor->ExtAddress64.Maximum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.AddressLength, 8,
+    			     &Descriptor->ExtAddress64.AddressLength, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Granularity, 8,
+    			     &Descriptor->ExtAddress64.Granularity, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.TranslationOffset, 8,
+    			     &Descriptor->ExtAddress64.TranslationOffset, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.TypeSpecific, 8,
+    			     &Descriptor->ExtAddress64.TypeSpecific, 8);
+
     Rnode->BufferLength = sizeof (AML_RESOURCE_EXTENDED_ADDRESS64) +
         StringLength;
     return (Rnode);
@@ -672,6 +698,19 @@ RsDoExtendedSpaceDescriptor (
         Descriptor->ExtAddress64.Granularity,
         Descriptor->ExtAddress64.Flags,
         MinOp, MaxOp, LengthOp, GranOp, Info->DescriptorTypeOp);
+
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Minimum, 8,
+    			     &Descriptor->ExtAddress64.Minimum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Maximum, 8,
+    			     &Descriptor->ExtAddress64.Maximum, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.AddressLength, 8,
+    			     &Descriptor->ExtAddress64.AddressLength, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.Granularity, 8,
+    			     &Descriptor->ExtAddress64.Granularity, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.TranslationOffset, 8,
+    			     &Descriptor->ExtAddress64.TranslationOffset, 8);
+    AcpiUtConvertHostIntToLE(&Descriptor->ExtAddress64.TypeSpecific, 8,
+    			     &Descriptor->ExtAddress64.TypeSpecific, 8);
 
     Rnode->BufferLength = sizeof (AML_RESOURCE_EXTENDED_ADDRESS64) +
         StringLength;
