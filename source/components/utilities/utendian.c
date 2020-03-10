@@ -62,10 +62,10 @@
 
 static void
 __SwapBytes (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount)
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount)
 {
     UINT8 *Src = (UINT8 *)SrcPtr;
     UINT8 *Dst = (UINT8 *)DstPtr;
@@ -166,11 +166,11 @@ __SwapBytes (
  *
  * FUNCTION:    AcpiUtConvertHostIntToLE
  *
- * PARAMETERS:  SrcPtr              - pointer to integer to convert to
+ * PARAMETERS:	DstPtr              - where to place the converted value
+ *              DstCount            - number of bytes in the destination integer
+ *              SrcPtr              - pointer to integer to convert to
  *                                    little-endian
  *              SrcCount            - number of bytes in the source integer
- *		DstPtr              - where to place the converted value
- *              DstCount            - number of bytes in the destination integer
  *
  * RETURN:      None. Output data is returned via DstPtr
  *
@@ -185,10 +185,10 @@ __SwapBytes (
 #ifdef ACPI_BIG_ENDIAN
 void
 AcpiUtConvertHostIntToLE (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount)
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount)
 {
     __SwapBytes(SrcPtr, SrcCount, DstPtr, DstCount);
 }
@@ -197,10 +197,10 @@ AcpiUtConvertHostIntToLE (
 
 void
 AcpiUtConvertHostIntToLE (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount)
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount)
 { }
 
 #endif
@@ -209,11 +209,11 @@ AcpiUtConvertHostIntToLE (
  *
  * FUNCTION:    AcpiUtConvertLEToHostInt
  *
- * PARAMETERS:  SrcPtr              - pointer to integer to convert to
+ * PARAMETERS:	DstPtr              - where to place the converted value
+ *              DstCount            - number of bytes in the destination integer
+ *              SrcPtr              - pointer to integer to convert to
  *                                    little-endian
  *              SrcCount            - number of bytes in the source integer
- *		DstPtr              - where to place the converted value
- *              DstCount            - number of bytes in the destination integer
  *
  * RETURN:      None. Output data is returned via DstPtr
  *
@@ -229,10 +229,10 @@ AcpiUtConvertHostIntToLE (
 
 void
 AcpiUtConvertLEToHostInt (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount)
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount)
 {
     __SwapBytes(SrcPtr, SrcCount, DstPtr, DstCount);
 }
@@ -241,10 +241,10 @@ AcpiUtConvertLEToHostInt (
 
 void
 AcpiUtConvertLEToHostInt (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount)
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount)
 { }
 
 #endif

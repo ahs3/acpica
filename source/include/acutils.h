@@ -1274,16 +1274,16 @@ AcpiUtConvertStringToUuid (
  */
 void
 AcpiUtConvertHostIntToLE (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount);
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount);
 
 void
 AcpiUtConvertLEToHostInt (
-    void                    *SrcPtr,
-    UINT32                  SrcCount,
     void                    *DstPtr,
-    UINT32                  DstCount);
+    UINT32                  DstCount,
+    void                    *SrcPtr,
+    UINT32                  SrcCount);
 
 #endif /* _ACUTILS_H */
