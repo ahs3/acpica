@@ -241,7 +241,8 @@ OBJECTS = \
 	$(OBJDIR)/utxface.o\
 	$(OBJDIR)/utxferror.o\
 	$(OBJDIR)/utxfinit.o\
-	$(OBJDIR)/utxfmutex.o
+	$(OBJDIR)/utxfmutex.o\
+	$(OBJDIR)/utendian.o
 
 #
 # Flags specific to acpiexec utility

@@ -163,7 +163,8 @@ OBJECTS = \
 	$(OBJDIR)/utstrtoul64.o\
 	$(OBJDIR)/utxface.o\
 	$(OBJDIR)/utxferror.o\
-	$(OBJDIR)/utxfinit.o
+	$(OBJDIR)/utxfinit.o\
+	$(OBJDIR)/utendian.o
 
 #
 # Flags specific to acpinames utility
