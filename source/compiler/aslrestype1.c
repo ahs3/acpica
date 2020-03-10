@@ -260,6 +260,8 @@ RsDoMemory24Descriptor (
     Descriptor = Rnode->Buffer;
     Descriptor->Memory24.DescriptorType = ACPI_RESOURCE_NAME_MEMORY24;
     Descriptor->Memory24.ResourceLength = 9;
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory24.ResourceLength, 2,
+    		             &Descriptor->Memory24.ResourceLength, 2);
 
     /* Process all child initialization nodes */
 
@@ -327,6 +329,15 @@ RsDoMemory24Descriptor (
         Descriptor->Memory24.AddressLength,
         Descriptor->Memory24.Alignment,
         MinOp, MaxOp, LengthOp, NULL, Info->DescriptorTypeOp);
+
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory24.Minimum, 2,
+    			     &Descriptor->Memory24.Minimum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory24.Maximum, 2,
+    			     &Descriptor->Memory24.Maximum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory24.AddressLength, 2,
+    			     &Descriptor->Memory24.AddressLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory24.Alignment, 2,
+    			     &Descriptor->Memory24.Alignment, 2);
 
     return (Rnode);
 }
@@ -435,6 +446,15 @@ RsDoMemory32Descriptor (
         Descriptor->Memory32.Alignment,
         MinOp, MaxOp, LengthOp, AlignOp, Info->DescriptorTypeOp);
 
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory32.Minimum, 2,
+    			     &Descriptor->Memory32.Minimum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory32.Maximum, 2,
+    			     &Descriptor->Memory32.Maximum, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory32.AddressLength, 2,
+    			     &Descriptor->Memory32.AddressLength, 2);
+    AcpiUtConvertHostIntToLE(&Descriptor->Memory32.Alignment, 2,
+    			     &Descriptor->Memory32.Alignment, 2);
+
     return (Rnode);
 }
 
@@ -469,6 +489,8 @@ RsDoMemory32FixedDescriptor (
     Descriptor = Rnode->Buffer;
     Descriptor->FixedMemory32.DescriptorType = ACPI_RESOURCE_NAME_FIXED_MEMORY32;
     Descriptor->FixedMemory32.ResourceLength = 9;
+    AcpiUtConvertHostIntToLE(&Descriptor->FixedMemory32.ResourceLength, 2,
+    			     &Descriptor->FixedMemory32.ResourceLength, 2);
 
     /* Process all child initialization nodes */
 
@@ -486,6 +508,8 @@ RsDoMemory32FixedDescriptor (
         case 1: /* Address */
 
             Descriptor->FixedMemory32.Address = (UINT32) InitializerOp->Asl.Value.Integer;
+    	    AcpiUtConvertHostIntToLE(&Descriptor->FixedMemory32.Address, 4,
+    			             &Descriptor->FixedMemory32.Address, 4);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_BASEADDRESS,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (FixedMemory32.Address));
             break;
@@ -493,6 +517,8 @@ RsDoMemory32FixedDescriptor (
         case 2: /* Length */
 
             Descriptor->FixedMemory32.AddressLength = (UINT32) InitializerOp->Asl.Value.Integer;
+    	    AcpiUtConvertHostIntToLE(&Descriptor->FixedMemory32.AddressLength, 4,
+    			             &Descriptor->FixedMemory32.AddressLength, 4);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_LENGTH,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (FixedMemory32.AddressLength));
             break;
