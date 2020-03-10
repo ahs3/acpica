@@ -457,6 +457,7 @@ AcpiNsLookup (
     UINT32                  SearchParentFlag = ACPI_NS_SEARCH_PARENT;
     UINT32                  LocalFlags;
     ACPI_INTERPRETER_MODE   LocalInterpreterMode;
+    UINT32                  TmpName;
 
 
     ACPI_FUNCTION_TRACE (NsLookup);
@@ -866,9 +867,11 @@ AcpiNsLookup (
             {
                 /* Complain about a type mismatch */
 
+		memcpy(&TmpName, &SimpleName, ACPI_NAMESEG_SIZE);
+		AcpiUtConvertLEToHostInt(&TmpName, 4, &TmpName, 4);
                 ACPI_WARNING ((AE_INFO,
                     "NsLookup: Type mismatch on %4.4s (%s), searching for (%s)",
-                    ACPI_CAST_PTR (char, &SimpleName),
+                    ACPI_CAST_PTR (char, &TmpName),
                     AcpiUtGetTypeName (ThisNode->Type),
                     AcpiUtGetTypeName (TypeToCheckFor)));
             }
