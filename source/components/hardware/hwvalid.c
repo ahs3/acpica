@@ -243,6 +243,7 @@ AcpiHwValidateIoRequest (
     UINT32                  ByteWidth;
     ACPI_IO_ADDRESS         LastAddress;
     const ACPI_PORT_INFO    *PortInfo;
+    UINT64                  MaxValue;
 
 
     ACPI_FUNCTION_TRACE (HwValidateIoRequest);
@@ -270,7 +271,9 @@ AcpiHwValidateIoRequest (
 
     /* Maximum 16-bit address in I/O space */
 
-    if (LastAddress > ACPI_UINT16_MAX)
+    MaxValue = (UINT64) ACPI_UINT16_MAX;
+    AcpiUtConvertHostIntToLE(&MaxValue, 8, &MaxValue, 8);
+    if ((UINT64) LastAddress > MaxValue)
     {
         ACPI_ERROR ((AE_INFO,
             "Illegal I/O port address/length above 64K: %8.8X%8.8X/0x%X",
