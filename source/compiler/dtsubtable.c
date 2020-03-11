@@ -480,12 +480,14 @@ void
 DtSetSubtableLength (
     DT_SUBTABLE             *Subtable)
 {
+    UINT32                  Length;
 
     if (!Subtable->LengthField)
     {
         return;
     }
 
-    memcpy (Subtable->LengthField, &Subtable->TotalLength,
-        Subtable->SizeOfLengthField);
+    Length = Subtable->TotalLength;
+    AcpiUtConvertHostIntToLE(&Length, 4, &Length, Subtable->SizeOfLengthField);
+    memcpy (Subtable->LengthField, &Length, Subtable->SizeOfLengthField);
 }
