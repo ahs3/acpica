@@ -210,13 +210,15 @@ AcpiNsExecuteTable (
 
     /* Table must consist of at least a complete header */
 
-    if (Table->Length < sizeof (ACPI_TABLE_HEADER))
+    AmlLength = Table->Length;
+    AcpiUtConvertLEToHostInt(&AmlLength, 4, &AmlLength, 4);
+    if (AmlLength < sizeof (ACPI_TABLE_HEADER))
     {
         return_ACPI_STATUS (AE_BAD_HEADER);
     }
 
     AmlStart = (UINT8 *) Table + sizeof (ACPI_TABLE_HEADER);
-    AmlLength = Table->Length - sizeof (ACPI_TABLE_HEADER);
+    AmlLength -= sizeof (ACPI_TABLE_HEADER);
 
     Status = AcpiTbGetOwnerId (TableIndex, &OwnerId);
     if (ACPI_FAILURE (Status))
