@@ -357,8 +357,8 @@ AdCreateTableHeader (
      */
     AcpiOsPrintf (
         "DefinitionBlock (\"\", \"%4.4s\", %u, \"%.6s\", \"%.8s\", 0x%8.8X)\n",
-        (char *)&Signature, Table->Revision, OemId, (char *)&OemTableId,
-	OemRevision);
+        Table->Signature, Table->Revision,
+        Table->OemId, Table->OemTableId, Table->OemRevision);
 }
 
 
