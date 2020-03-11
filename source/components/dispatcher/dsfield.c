@@ -156,6 +156,7 @@
 #include "acinterp.h"
 #include "acnamesp.h"
 #include "acparser.h"
+#include "acutils.h"
 
 #ifdef ACPI_EXEC_APP
 #include "aecommon.h"
@@ -432,6 +433,7 @@ AcpiDsGetFieldNames (
     ACPI_STATUS             Status;
     UINT64                  Position;
     ACPI_PARSE_OBJECT       *Child;
+    UINT32                  TmpName;
 
 #ifdef ACPI_EXEC_APP
     ACPI_OPERAND_OBJECT     *ResultDesc;
@@ -545,8 +547,10 @@ AcpiDsGetFieldNames (
 
             /* Lookup the name, it should already exist */
 
+	    TmpName = Arg->Named.Name;
+	    AcpiUtConvertHostIntToLE(&TmpName, 4, &TmpName, 4);
             Status = AcpiNsLookup (WalkState->ScopeInfo,
-                (char *) &Arg->Named.Name, Info->FieldType,
+                (char *) &TmpName, Info->FieldType,
                 ACPI_IMODE_EXECUTE, ACPI_NS_DONT_OPEN_SCOPE,
                 WalkState, &Info->FieldNode);
             if (ACPI_FAILURE (Status))
@@ -797,8 +801,12 @@ AcpiDsInitFieldObjects (
          */
         if (Arg->Common.AmlOpcode == AML_INT_NAMEDFIELD_OP)
         {
+	    UINT32 TmpName;
+
+            TmpName = Arg->Named.Name;
+	    AcpiUtConvertHostIntToLE(&TmpName, 4, &TmpName, 4);
             Status = AcpiNsLookup (WalkState->ScopeInfo,
-                (char *) &Arg->Named.Name, Type, ACPI_IMODE_LOAD_PASS1,
+                (char *) &TmpName, Type, ACPI_IMODE_LOAD_PASS1,
                 Flags, WalkState, &Node);
             if (ACPI_FAILURE (Status))
             {
