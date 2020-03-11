@@ -312,7 +312,7 @@ AcpiDmByteList (
 
 
     ByteData = Op->Named.Data;
-    ByteCount = (UINT32) Op->Common.Value.Integer;
+    ByteCount = (UINT32) Op->Common.Value.Size;
 
     /*
      * The byte list belongs to a buffer, and can be produced by either
@@ -412,7 +412,7 @@ AcpiDmIsUuidBuffer (
     /* Extract the byte list info */
 
     ByteData = NextOp->Named.Data;
-    ByteCount = (UINT32) NextOp->Common.Value.Integer;
+    ByteCount = (UINT32) NextOp->Common.Value.Size;
 
     /* Byte count must be exactly 16 */
 
@@ -532,7 +532,7 @@ AcpiDmIsUnicodeBuffer (
     /* Extract the byte list info */
 
     ByteData = NextOp->Named.Data;
-    ByteCount = (UINT32) NextOp->Common.Value.Integer;
+    ByteCount = (UINT32) NextOp->Common.Value.Size;
     WordCount = ACPI_DIV_2 (ByteCount);
 
     /*
@@ -959,20 +959,21 @@ AcpiDmUnicode (
     UINT16                  *WordData;
     UINT32                  WordCount;
     UINT32                  i;
-    int                     OutputValue;
+    UINT16                  OutputValue;
 
 
     /* Extract the buffer info as a WORD buffer */
 
     WordData = ACPI_CAST_PTR (UINT16, Op->Named.Data);
-    WordCount = ACPI_DIV_2 (((UINT32) Op->Common.Value.Integer));
+    WordCount = ACPI_DIV_2 (((UINT32) Op->Common.Value.Size));
 
     /* Write every other byte as an ASCII character */
 
     AcpiOsPrintf ("\"");
     for (i = 0; i < (WordCount - 1); i++)
     {
-        OutputValue = (int) WordData[i];
+        OutputValue = WordData[i];
+	AcpiUtConvertLEToHostInt(&OutputValue, 2, &OutputValue, 2);
 
         /* Handle values that must be escaped */
 
@@ -1091,6 +1092,7 @@ AcpiDmCheckForHardwareId (
     {
         return;
     }
+    AcpiUtConvertLEToHostInt(&Name, 4, &Name, 4);
 
     NextOp = AcpiPsGetDepthNext (NULL, Op);
     if (!NextOp)
