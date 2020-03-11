@@ -469,6 +469,7 @@ DtCompileInteger (
         DtError (ASL_ERROR, ASL_MSG_INTEGER_SIZE, Field, AslGbl_MsgBuffer);
     }
 
+    AcpiUtConvertHostIntToLE(&Value, 8, &Value, 8);
     memcpy (Buffer, &Value, ByteLength);
     return;
 }
