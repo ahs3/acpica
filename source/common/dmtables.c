@@ -354,11 +354,17 @@ AdCreateTableHeader (
      * Note: the AMLFilename string is left zero-length in order to just let
      * the compiler create it when the disassembled file is compiled. This
      * makes it easier to rename the disassembled ASL file if needed.
+     *
+     * NB:
+     *    Table->Signature	=> Signature
+     *    Table->OemId		=> OemId
+     *    Table->OemTableId	=> OemTableId
+     *    Table->OemRevision	=> OemRevision
      */
     AcpiOsPrintf (
         "DefinitionBlock (\"\", \"%4.4s\", %u, \"%.6s\", \"%.8s\", 0x%8.8X)\n",
-        Table->Signature, Table->Revision,
-        Table->OemId, Table->OemTableId, Table->OemRevision);
+	(char *)&Signature, Table->Revision,
+	(char *)OemId, (char *)&OemTableId, OemRevision);
 }
 
 
