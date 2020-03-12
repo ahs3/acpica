@@ -532,18 +532,21 @@ AcpiTbCreateLocalFadt (
     ACPI_TABLE_HEADER       *Table,
     UINT32                  Length)
 {
+    UINT32                  Value;
 
     /*
      * Check if the FADT is larger than the largest table that we expect
      * (typically the current ACPI specification version). If so, truncate
      * the table, and issue a warning.
      */
-    if (Length > sizeof (ACPI_TABLE_FADT))
+    Value = Length;
+    AcpiUtConvertLEToHostInt(&Value, 4, &Value, 4);
+    if (Value > sizeof (ACPI_TABLE_FADT))
     {
         ACPI_BIOS_WARNING ((AE_INFO,
             "FADT (revision %u) is longer than %s length, "
             "truncating length %u to %u",
-            Table->Revision, ACPI_FADT_CONFORMANCE, Length,
+            Table->Revision, ACPI_FADT_CONFORMANCE, Value,
             (UINT32) sizeof (ACPI_TABLE_FADT)));
     }
 
@@ -554,7 +557,7 @@ AcpiTbCreateLocalFadt (
     /* Copy the original FADT, up to sizeof (ACPI_TABLE_FADT) */
 
     memcpy (&AcpiGbl_FADT, Table,
-        ACPI_MIN (Length, sizeof (ACPI_TABLE_FADT)));
+        ACPI_MIN (Value, sizeof (ACPI_TABLE_FADT)));
 
     /* Take a copy of the Hardware Reduced flag */
 
@@ -628,6 +631,8 @@ AcpiTbConvertFadt (
     UINT8                   Length;
     UINT8                   Flags;
     UINT32                  i;
+    UINT32                  Value32;
+    UINT64                  Value64;
 
 
     /*
@@ -641,7 +646,9 @@ AcpiTbConvertFadt (
      * Note: The FADT revision value is unreliable. Only the length can be
      * trusted.
      */
-    if (AcpiGbl_FADT.Header.Length <= ACPI_FADT_V2_SIZE)
+    Value32 = AcpiGbl_FADT.Header.Length;
+    AcpiUtConvertLEToHostInt(&Value32, 4, &Value32, 4);
+    if (Value32 <= ACPI_FADT_V2_SIZE)
     {
         AcpiGbl_FADT.PreferredProfile = 0;
         AcpiGbl_FADT.PstateControl = 0;
@@ -655,13 +662,17 @@ AcpiTbConvertFadt (
      * Thus, we will have a common FADT internally.
      */
     AcpiGbl_FADT.Header.Length = sizeof (ACPI_TABLE_FADT);
+    AcpiUtConvertHostIntToLE(&AcpiGbl_FADT.Header.Length, 4,
+    			     &AcpiGbl_FADT.Header.Length, 4);
 
     /*
      * Expand the 32-bit DSDT addresses to 64-bit as necessary.
      * Later ACPICA code will always use the X 64-bit field.
      */
-    AcpiGbl_FADT.XDsdt = AcpiTbSelectAddress ("DSDT",
+    Value64 = AcpiTbSelectAddress ("DSDT",
         AcpiGbl_FADT.Dsdt, AcpiGbl_FADT.XDsdt);
+    AcpiUtConvertHostIntToLE(&Value64, 8, &Value64, 8);
+    AcpiGbl_FADT.XDsdt = Value64;
 
     /* If Hardware Reduced flag is set, we are all done */
 
@@ -722,7 +733,11 @@ AcpiTbConvertFadt (
         {
             if (Address64->Address)
             {
-                if (Address64->Address != (UINT64) Address32)
+	        Value32 = Address32;
+		AcpiUtConvertLEToHostInt(&Value32, 4, &Value32, 4);
+	        Value64 = Address64->Address;
+		AcpiUtConvertLEToHostInt(&Value64, 8, &Value64, 8);
+                if (Value64 != (UINT64) Value32)
                 {
                     /* Address mismatch */
 
@@ -763,9 +778,11 @@ AcpiTbConvertFadt (
              */
             if (!Address64->Address || AcpiGbl_Use32BitFadtAddresses)
             {
+	        Value32 = Address32;
+		AcpiUtConvertLEToHostInt(&Value32, 4, &Value32, 4);
                 AcpiTbInitGenericAddress (Address64,
                     ACPI_ADR_SPACE_SYSTEM_IO, Length,
-                    (UINT64) Address32, Name, Flags);
+                    (UINT64) Value32, Name, Flags);
             }
         }
 
@@ -888,10 +905,16 @@ AcpiTbSetupFadtRegisters (
 
         if (Source64->Address)
         {
+	    UINT64 Tmp64;
+
+	    Tmp64 = Source64->Address;
+	    AcpiUtConvertLEToHostInt(&Tmp64, 8, &Tmp64, 8);
+	    Tmp64 += (FadtPmInfoTable[i].RegisterNum * Pm1RegisterByteWidth);
+	    AcpiUtConvertHostIntToLE(&Tmp64, 8, &Tmp64, 8);
+
             AcpiTbInitGenericAddress (FadtPmInfoTable[i].Target,
                 Source64->SpaceId, Pm1RegisterByteWidth,
-                Source64->Address +
-                    (FadtPmInfoTable[i].RegisterNum * Pm1RegisterByteWidth),
+                Tmp64,
                 "PmRegisters", 0);
         }
     }
