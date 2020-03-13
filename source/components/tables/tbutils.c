@@ -347,6 +347,7 @@ AcpiTbGetRootTableEntry (
          *  return 64-bit
          */
         ACPI_MOVE_64_TO_64 (&Address64, TableEntry);
+	AcpiUtConvertLEToHostInt(&Address64, 8, &Address64, 8);
 
 #if ACPI_MACHINE_WIDTH == 32
         if (Address64 > ACPI_UINT32_MAX)
@@ -359,7 +360,7 @@ AcpiTbGetRootTableEntry (
                 ACPI_FORMAT_UINT64 (Address64)));
         }
 #endif
-        return ((ACPI_PHYSICAL_ADDRESS) (Address64));
+        return ((ACPI_PHYSICAL_ADDRESS) (*ACPI_CAST_PTR (UINT64, Address64)));
     }
 }
 
@@ -395,6 +396,7 @@ AcpiTbParseRootTable (
     UINT8                   *TableEntry;
     ACPI_STATUS             Status;
     UINT32                  TableIndex;
+    UINT32                  Tmp32;
 
 
     ACPI_FUNCTION_TRACE (TbParseRootTable);
@@ -454,6 +456,7 @@ AcpiTbParseRootTable (
      * Minimum length table must contain at least one entry.
      */
     Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
     AcpiOsUnmapMemory (Table, sizeof (ACPI_TABLE_HEADER));
 
     if (Length < (sizeof (ACPI_TABLE_HEADER) + TableEntrySize))
@@ -480,7 +483,7 @@ AcpiTbParseRootTable (
 
     /* Get the number of entries and pointer to first entry */
 
-    TableCount = (UINT32) ((Table->Length - sizeof (ACPI_TABLE_HEADER)) /
+    TableCount = (UINT32) ((Length - sizeof (ACPI_TABLE_HEADER)) /
         TableEntrySize);
     TableEntry = ACPI_ADD_PTR (UINT8, Table, sizeof (ACPI_TABLE_HEADER));
 
@@ -502,10 +505,11 @@ AcpiTbParseRootTable (
         Status = AcpiTbInstallStandardTable (Address,
             ACPI_TABLE_ORIGIN_INTERNAL_PHYSICAL, FALSE, TRUE, &TableIndex);
 
+	memcpy(&Tmp32, &AcpiGbl_RootTableList.Tables[TableIndex].Signature,
+	       ACPI_NAMESEG_SIZE);
+	AcpiUtConvertLEToHostInt(&Tmp32, 4, &Tmp32, 4);
         if (ACPI_SUCCESS (Status) &&
-            ACPI_COMPARE_NAMESEG (
-                &AcpiGbl_RootTableList.Tables[TableIndex].Signature,
-                ACPI_SIG_FADT))
+            ACPI_COMPARE_NAMESEG (&Tmp32, ACPI_SIG_FADT))
         {
             AcpiGbl_FadtIndex = TableIndex;
             AcpiTbParseFadt ();
