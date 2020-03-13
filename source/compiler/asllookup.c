@@ -230,6 +230,7 @@ LkIsObjectUsed (
     ASL_METHOD_LOCAL        *MethodLocals;
     ASL_METHOD_LOCAL        *MethodArgs;
     UINT32                  i;
+    ACPI_NAMESPACE_NODE     TmpNode;
 
 
     if (Node->Type == ACPI_TYPE_METHOD)
@@ -353,7 +354,10 @@ LkIsObjectUsed (
      * ACPI names and are typically not referenced since they are meant
      * to be called by the host OS.
      */
-    if (Node->Name.Ascii[0] == '_')
+    memset(&TmpNode, 0, sizeof (ACPI_NAMESPACE_NODE));
+    memcpy(&TmpNode.Name.Ascii, Node->Name.Ascii, ACPI_NAMESEG_SIZE);
+    AcpiUtConvertLEToHostInt(&TmpNode, 4, &TmpNode, 4);
+    if (TmpNode.Name.Ascii[0] == '_')
     {
         return (AE_OK);
     }
