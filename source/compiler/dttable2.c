@@ -1202,9 +1202,12 @@ DtCompilePptt (
                 Subtable->Buffer, sizeof (ACPI_SUBTABLE_HEADER));
             if (PpttProcessor)
             {
+	        UINT32 NumPrivRes;
+
                 /* Compile initiator proximity domain list */
 
                 PpttProcessor->NumberOfPrivResources = 0;
+		NumPrivRes = 0;
                 while (*PFieldList)
                 {
                     Status = DtCompileTable (PFieldList,
@@ -1221,7 +1224,10 @@ DtCompilePptt (
                     DtInsertSubtable (ParentTable, Subtable);
                     PpttHeader->Length += (UINT8)(Subtable->Length);
                     PpttProcessor->NumberOfPrivResources++;
+		    NumPrivRes++;
                 }
+		AcpiUtConvertHostIntToLE(&NumPrivRes, 4, &NumPrivRes, 4);
+		PpttProcessor->NumberOfPrivResources = NumPrivRes;
             }
             break;
 
