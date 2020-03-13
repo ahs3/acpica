@@ -471,6 +471,15 @@ AcpiNsBuildInternalName (
 
         /* Move on the next segment */
 
+	{
+	    /* Make sure the name segment reflects endian-ness first */
+
+	    UINT32 Tmp32 = 0;
+
+	    memcpy(&Tmp32, Result, ACPI_NAMESEG_SIZE);
+	    AcpiUtConvertLEToHostInt(&Tmp32, 4, &Tmp32, 4);
+	}
+
         ExternalName++;
         Result += ACPI_NAMESEG_SIZE;
     }
