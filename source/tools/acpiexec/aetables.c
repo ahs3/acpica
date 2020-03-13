@@ -257,18 +257,25 @@ AeInitializeTableHeader (
 
     ACPI_COPY_NAMESEG (Header->Signature, Signature);
     Header->Length = Length;
+    AcpiUtConvertHostIntToLE(&Header->Length, 4, &Header->Length, 4);
 
     Header->OemRevision = 0x1001;
+    AcpiUtConvertHostIntToLE(&Header->OemRevision, 2, &Header->OemRevision, 2);
     memcpy (Header->OemId, "Intel ", ACPI_OEM_ID_SIZE);
+    AcpiUtConvertHostIntToLE(&Header->OemId, 6, &Header->OemId, 6);
     memcpy (Header->OemTableId, "AcpiExec", ACPI_OEM_TABLE_ID_SIZE);
     ACPI_COPY_NAMESEG (Header->AslCompilerId, "INTL");
+    AcpiUtConvertHostIntToLE(&Header->AslCompilerId, 4,
+    			     &Header->AslCompilerId, 4);
     Header->AslCompilerRevision = ACPI_CA_VERSION;
+    AcpiUtConvertHostIntToLE(&Header->AslCompilerRevision, 4,
+    			     &Header->AslCompilerRevision, 4);
 
     /* Set the checksum, must set to zero first */
 
     Header->Checksum = 0;
     Header->Checksum = (UINT8) -AcpiTbChecksum (
-        (void *) Header, Header->Length);
+        (void *) Header, Length);
 }
 
 
@@ -494,33 +501,57 @@ AeBuildLocalTables (
 
         LocalFADT.XDsdt = DsdtAddress;
         LocalFADT.XFacs = ACPI_PTR_TO_PHYSADDR (&LocalFACS);
+	AcpiUtConvertHostIntToLE(&LocalFADT.XFacs, 8, &LocalFADT.XFacs, 8);
 
         /* Miscellaneous FADT fields */
 
         LocalFADT.Gpe0BlockLength = 0x20;
         LocalFADT.Gpe0Block = 0x00003210;
+	AcpiUtConvertHostIntToLE(&LocalFADT.Gpe0Block, 4,
+				 &LocalFADT.Gpe0Block, 4);
 
         LocalFADT.Gpe1BlockLength = 0x20;
         LocalFADT.Gpe1Block = 0x0000BA98;
+	AcpiUtConvertHostIntToLE(&LocalFADT.Gpe1Block, 4,
+				 &LocalFADT.Gpe1Block, 4);
         LocalFADT.Gpe1Base = 0x80;
 
         LocalFADT.Pm1EventLength = 4;
         LocalFADT.Pm1aEventBlock = 0x00001aaa;
+	AcpiUtConvertHostIntToLE(&LocalFADT.Pm1aEventBlock, 4,
+				 &LocalFADT.Pm1aEventBlock, 4);
         LocalFADT.Pm1bEventBlock = 0x00001bbb;
+	AcpiUtConvertHostIntToLE(&LocalFADT.Pm1bEventBlock, 4,
+				 &LocalFADT.Pm1bEventBlock, 4);
 
         LocalFADT.Pm1ControlLength = 2;
         LocalFADT.Pm1aControlBlock = 0xB0;
+	AcpiUtConvertHostIntToLE(&LocalFADT.Pm1aControlBlock, 4,
+				 &LocalFADT.Pm1aControlBlock, 4);
 
         LocalFADT.PmTimerLength = 4;
         LocalFADT.PmTimerBlock = 0xA0;
+	AcpiUtConvertHostIntToLE(&LocalFADT.PmTimerBlock, 4,
+				 &LocalFADT.PmTimerBlock, 4);
 
         LocalFADT.Pm2ControlBlock = 0xC0;
+	AcpiUtConvertHostIntToLE(&LocalFADT.Pm2ControlBlock, 4,
+				 &LocalFADT.Pm2ControlBlock, 4);
         LocalFADT.Pm2ControlLength = 1;
 
         /* Setup one example X-64 GAS field */
 
         LocalFADT.XPm1bEventBlock.SpaceId = ACPI_ADR_SPACE_SYSTEM_IO;
-        LocalFADT.XPm1bEventBlock.Address = LocalFADT.Pm1bEventBlock;
+	{
+	    UINT32 Value32;
+	    UINT64 Value64;
+
+	    Value32 = LocalFADT.Pm1bEventBlock;
+	    AcpiUtConvertHostIntToLE(&Value32, 4, &Value32, 4);
+	    Value64 = (UINT64) Value32;
+	    AcpiUtConvertHostIntToLE(&Value64, 8, &Value64, 8);
+            LocalFADT.XPm1bEventBlock.Address = Value64;
+	}
         LocalFADT.XPm1bEventBlock.BitWidth = (UINT8)
             ACPI_MUL_8 (LocalFADT.Pm1EventLength);
     }
@@ -532,9 +563,13 @@ AeBuildLocalTables (
 
     memset (&LocalFACS, 0, sizeof (ACPI_TABLE_FACS));
     ACPI_COPY_NAMESEG (LocalFACS.Signature, ACPI_SIG_FACS);
+    AcpiUtConvertHostIntToLE(&LocalFACS.Signature, 4, &LocalFACS.Signature, 4);
 
     LocalFACS.Length = sizeof (ACPI_TABLE_FACS);
+    AcpiUtConvertHostIntToLE(&LocalFACS.Length, 4, &LocalFACS.Length, 4);
     LocalFACS.GlobalLock = 0x11AA0011;
+    AcpiUtConvertHostIntToLE(&LocalFACS.GlobalLock, 4,
+    			     &LocalFACS.GlobalLock, 4);
 
     /* Build the optional local tables */
 
@@ -544,6 +579,8 @@ AeBuildLocalTables (
          * Build a fake table [TEST] so that we make sure that the
          * ACPICA core ignores it
          */
+	UINT32 Value32;
+
         memset (&LocalTEST, 0, sizeof (ACPI_TABLE_HEADER));
         ACPI_COPY_NAMESEG (LocalTEST.Signature, "TEST");
 
@@ -560,13 +597,19 @@ AeBuildLocalTables (
          */
         memset (&LocalBADTABLE, 0, sizeof (ACPI_TABLE_HEADER));
         ACPI_COPY_NAMESEG (LocalBADTABLE.Signature, "BAD!");
+	AcpiUtConvertHostIntToLE(&LocalBADTABLE.Signature, 4,
+				 &LocalBADTABLE.Signature, 4);
 
         LocalBADTABLE.Revision = 1;
         LocalBADTABLE.Length = sizeof (ACPI_TABLE_HEADER);
+	AcpiUtConvertHostIntToLE(&LocalBADTABLE.Length, 4,
+				 &LocalBADTABLE.Length, 4);
 
+        Value32 = LocalBADTABLE.Length;
+	AcpiUtConvertLEToHostInt(&Value32, 4, &Value32, 4);
         LocalBADTABLE.Checksum = 0;
         LocalBADTABLE.Checksum = (UINT8) -AcpiTbChecksum (
-            (void *) &LocalBADTABLE, LocalBADTABLE.Length);
+            (void *) &LocalBADTABLE, Value32);
     }
 
     return (AE_OK);
