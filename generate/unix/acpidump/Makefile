@@ -49,7 +49,8 @@ OBJECTS = \
 	$(OBJDIR)/utstring.o\
 	$(OBJDIR)/utstrsuppt.o\
 	$(OBJDIR)/utstrtoul64.o\
-	$(OBJDIR)/utxferror.o
+	$(OBJDIR)/utxferror.o\
+	$(OBJDIR)/utendian.o
 
 #
 # Per-host interfaces
