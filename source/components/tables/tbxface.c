@@ -388,6 +388,7 @@ AcpiGetTableHeader (
     UINT32                  i;
     UINT32                  j;
     ACPI_TABLE_HEADER       *Header;
+    UINT32                  TmpSig;
 
 
     /* Parameter validation */
@@ -399,10 +400,12 @@ AcpiGetTableHeader (
 
     /* Walk the root table list */
 
+    memcpy(&TmpSig, Signature, ACPI_NAMESEG_SIZE);
+    AcpiUtConvertHostIntToLE(&TmpSig, 4, &TmpSig, 4);
     for (i = 0, j = 0; i < AcpiGbl_RootTableList.CurrentTableCount; i++)
     {
         if (!ACPI_COMPARE_NAMESEG (
-                &(AcpiGbl_RootTableList.Tables[i].Signature), Signature))
+                &(AcpiGbl_RootTableList.Tables[i].Signature), (char *)&TmpSig))
         {
             continue;
         }
