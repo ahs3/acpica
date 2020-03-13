@@ -152,6 +152,7 @@
 #include "acpi.h"
 #include "accommon.h"
 #include "actables.h"
+#include "acutils.h"
 
 #define _COMPONENT          ACPI_TABLES
         ACPI_MODULE_NAME    ("tbfind")
@@ -216,8 +217,12 @@ AcpiTbFindTable (
     (void) AcpiUtAcquireMutex (ACPI_MTX_TABLES);
     for (i = 0; i < AcpiGbl_RootTableList.CurrentTableCount; ++i)
     {
+        UINT32 TmpSig;
+
+	TmpSig = *(UINT32 *)Header.Signature;
+	AcpiUtConvertHostIntToLE(&TmpSig, 4, &TmpSig, 4);
         if (memcmp (&(AcpiGbl_RootTableList.Tables[i].Signature),
-            Header.Signature, ACPI_NAMESEG_SIZE))
+            &TmpSig, ACPI_NAMESEG_SIZE))
         {
             /* Not the requested table */
 
