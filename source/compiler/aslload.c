@@ -288,8 +288,21 @@ LdLoadFieldElements (
     SourceRegion = UtGetArg (Op, 0);
     if (SourceRegion)
     {
+        const int NAMELEN = 20 * ACPI_NAMESEG_SIZE;
+        char TmpName[NAMELEN+1];
+	int Len;
+
+        memset(TmpName, 0, NAMELEN+1);
+        if (SourceRegion->Asl.Value.String)
+	{
+	    Len = strlen(SourceRegion->Asl.Value.String);
+	    Len = Len > NAMELEN ? NAMELEN : Len;
+	    memcpy(TmpName, SourceRegion->Asl.Value.String, Len);
+	    AcpiUtConvertHostPathToLE(TmpName, TmpName, Len);
+	}
+
         Status = AcpiNsLookup (WalkState->ScopeInfo,
-            SourceRegion->Asl.Value.String, AmlType, ACPI_IMODE_EXECUTE,
+            TmpName, AmlType, ACPI_IMODE_EXECUTE,
             ACPI_NS_SEARCH_PARENT | ACPI_NS_DONT_OPEN_SCOPE, NULL, &Node);
         if (Status == AE_NOT_FOUND)
         {
@@ -339,13 +352,28 @@ LdLoadFieldElements (
             break;
 
         default:
+        
+            {
+	        const int NAMELEN = 20 * ACPI_NAMESEG_SIZE;
+                char TmpName[NAMELEN+1];
+	        int Len;
 
-            Status = AcpiNsLookup (WalkState->ScopeInfo,
-                Child->Asl.Value.String,
-                ACPI_TYPE_LOCAL_REGION_FIELD,
-                ACPI_IMODE_LOAD_PASS1,
-                ACPI_NS_NO_UPSEARCH | ACPI_NS_DONT_OPEN_SCOPE |
-                    ACPI_NS_ERROR_IF_FOUND, NULL, &Node);
+                memset(TmpName, 0, NAMELEN+1);
+		if (Child->Asl.Value.String)
+		{
+	            Len = strnlen(Child->Asl.Value.String, NAMELEN);
+	            Len = Len > NAMELEN ? NAMELEN : Len;
+	            memcpy(TmpName, Child->Asl.Value.String, Len);
+	            AcpiUtConvertHostPathToLE(TmpName, TmpName, Len);
+		}
+
+                Status = AcpiNsLookup (WalkState->ScopeInfo,
+                    TmpName,
+                    ACPI_TYPE_LOCAL_REGION_FIELD,
+                    ACPI_IMODE_LOAD_PASS1,
+                    ACPI_NS_NO_UPSEARCH | ACPI_NS_DONT_OPEN_SCOPE |
+                        ACPI_NS_ERROR_IF_FOUND, NULL, &Node);
+	    }
             if (ACPI_FAILURE (Status))
             {
                 if (Status != AE_ALREADY_EXISTS)
