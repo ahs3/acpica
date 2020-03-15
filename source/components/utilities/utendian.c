@@ -164,7 +164,7 @@ __SwapBytes (
 static void
 __SwapPath (
     void                    *DstPtr,
-    void                    *SrcPtr)
+    void                    *SrcPtr,
     UINT32                  ByteCount)
 {
     UINT8                   *Src = (UINT8 *)SrcPtr;
@@ -217,7 +217,7 @@ __SwapPath (
 
 	Offset = ii * ACPI_NAMESEG_SIZE;
         memcpy(Dst + Offset, Src + Offset, ACPI_NAMESEG_SIZE);
-	__SwapByte(Dst + Offset, 4, Dst + Offset, 4);
+	__SwapBytes(Dst + Offset, 4, Dst + Offset, 4);
     }
 }
 
@@ -338,7 +338,7 @@ AcpiUtConvertLEToHostPath (
     void                    *SrcPtr,
     UINT32                  ByteCount)
 {
-    __SwapPatch(SrcPtr, DstPtr, ByteCount);
+    __SwapPath(SrcPtr, DstPtr, ByteCount);
 }
 
 #else
