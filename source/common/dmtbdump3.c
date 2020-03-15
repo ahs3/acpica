@@ -176,9 +176,12 @@ void
 AcpiDmDumpSlic (
     ACPI_TABLE_HEADER       *Table)
 {
+    UINT32                  Length;
 
-    (void) AcpiDmDumpTable (Table->Length, sizeof (ACPI_TABLE_HEADER), Table,
-        Table->Length - sizeof (*Table), AcpiDmTableInfoSlic);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    (void) AcpiDmDumpTable (Length, sizeof (ACPI_TABLE_HEADER), Table,
+        Length - sizeof (*Table), AcpiDmTableInfoSlic);
 }
 
 
@@ -201,14 +204,17 @@ AcpiDmDumpSlit (
     ACPI_STATUS             Status;
     UINT32                  Offset;
     UINT8                   *Row;
-    UINT32                  Localities;
+    UINT64                  Localities;
     UINT32                  i;
     UINT32                  j;
+    UINT32                  Length;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoSlit);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoSlit);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -217,6 +223,7 @@ AcpiDmDumpSlit (
     /* Display the Locality NxN Matrix */
 
     Localities = (UINT32) ACPI_CAST_PTR (ACPI_TABLE_SLIT, Table)->LocalityCount;
+    AcpiUtConvertLEToHostInt(&Localities, 8, &Localities, 8);
     Offset = ACPI_OFFSET (ACPI_TABLE_SLIT, Entry[0]);
     Row = (UINT8 *) ACPI_CAST_PTR (ACPI_TABLE_SLIT, Table)->Entry;
 
@@ -229,7 +236,7 @@ AcpiDmDumpSlit (
         {
             /* Check for beyond EOT */
 
-            if (Offset >= Table->Length)
+            if (Offset >= Length)
             {
                 AcpiOsPrintf (
                     "\n**** Not enough room in table for all localities\n");
@@ -281,11 +288,14 @@ AcpiDmDumpSrat (
     UINT32                  Offset = sizeof (ACPI_TABLE_SRAT);
     ACPI_SUBTABLE_HEADER    *Subtable;
     ACPI_DMTABLE_INFO       *InfoTable;
+    UINT32                  Length;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoSrat);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoSrat);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -294,12 +304,12 @@ AcpiDmDumpSrat (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_SUBTABLE_HEADER, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < Length)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (Length, Offset, Subtable,
             Subtable->Length, AcpiDmTableInfoSratHdr);
         if (ACPI_FAILURE (Status))
         {
@@ -353,7 +363,7 @@ AcpiDmDumpSrat (
         }
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (Length, Offset, Subtable,
             Subtable->Length, InfoTable);
         if (ACPI_FAILURE (Status))
         {
@@ -390,13 +400,15 @@ AcpiDmDumpStao (
 {
     ACPI_STATUS             Status;
     char                    *Namepath;
-    UINT32                  Length = Table->Length;
+    UINT32                  Length;
     UINT32                  StringLength;
     UINT32                  Offset = sizeof (ACPI_TABLE_STAO);
 
 
     /* Main table */
 
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
     Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoStao);
     if (ACPI_FAILURE (Status))
     {
@@ -405,7 +417,7 @@ AcpiDmDumpStao (
 
     /* The rest of the table consists of Namepath strings */
 
-    while (Offset < Table->Length)
+    while (Offset < Length)
     {
         Namepath = ACPI_ADD_PTR (char, Table, Offset);
         StringLength = strlen (Namepath) + 1;
@@ -447,11 +459,15 @@ AcpiDmDumpTcpa (
     ACPI_TABLE_TCPA_HDR     *Subtable = ACPI_ADD_PTR (
                                 ACPI_TABLE_TCPA_HDR, Table, Offset);
     ACPI_STATUS             Status;
+    UINT32                  Length;
+    UINT16                  PlatformClass;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table,
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table,
         0, AcpiDmTableInfoTcpaHdr);
     if (ACPI_FAILURE (Status))
     {
@@ -462,18 +478,20 @@ AcpiDmDumpTcpa (
      * Examine the PlatformClass field to determine the table type.
      * Either a client or server table. Only one.
      */
-    switch (CommonHeader->PlatformClass)
+    PlatformClass = CommonHeader->PlatformClass;
+    AcpiUtConvertLEToHostInt(&PlatformClass, 2, &PlatformClass, 2);
+    switch (PlatformClass)
     {
     case ACPI_TCPA_CLIENT_TABLE:
 
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
-            Table->Length - Offset, AcpiDmTableInfoTcpaClient);
+        Status = AcpiDmDumpTable (Length, Offset, Subtable,
+            Length - Offset, AcpiDmTableInfoTcpaClient);
         break;
 
     case ACPI_TCPA_SERVER_TABLE:
 
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
-            Table->Length - Offset, AcpiDmTableInfoTcpaServer);
+        Status = AcpiDmDumpTable (Length, Offset, Subtable,
+            Length - Offset, AcpiDmTableInfoTcpaServer);
         break;
 
     default:
@@ -510,11 +528,14 @@ AcpiDmDumpTpm2Rev3 (
     ACPI_TABLE_TPM23        *CommonHeader = ACPI_CAST_PTR (ACPI_TABLE_TPM23, Table);
     ACPI_TPM23_TRAILER      *Subtable = ACPI_ADD_PTR (ACPI_TPM23_TRAILER, Table, Offset);
     ACPI_STATUS             Status;
+    UINT32                  Length;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoTpm23);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoTpm23);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -526,8 +547,8 @@ AcpiDmDumpTpm2Rev3 (
     {
     case ACPI_TPM23_ACPI_START_METHOD:
 
-        (void) AcpiDmDumpTable (Table->Length, Offset, Subtable,
-            Table->Length - Offset, AcpiDmTableInfoTpm23a);
+        (void) AcpiDmDumpTable (Length, Offset, Subtable,
+            Length - Offset, AcpiDmTableInfoTpm23a);
         break;
 
     default:
@@ -557,6 +578,7 @@ AcpiDmDumpTpm2 (
     ACPI_TPM2_TRAILER       *Subtable = ACPI_ADD_PTR (ACPI_TPM2_TRAILER, Table, Offset);
     ACPI_TPM2_ARM_SMC       *ArmSubtable;
     ACPI_STATUS             Status;
+    UINT32                  Length;
 
 
     if (Table->Revision == 3)
@@ -567,7 +589,9 @@ AcpiDmDumpTpm2 (
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoTpm2);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoTpm2);
 
     if (ACPI_FAILURE (Status))
     {
@@ -575,8 +599,8 @@ AcpiDmDumpTpm2 (
     }
 
     AcpiOsPrintf ("\n");
-    Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
-        Table->Length - Offset, AcpiDmTableInfoTpm2a);
+    Status = AcpiDmDumpTable (Length, Offset, Subtable,
+        Length - Offset, AcpiDmTableInfoTpm2a);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -591,8 +615,8 @@ AcpiDmDumpTpm2 (
         Offset += sizeof (ACPI_TPM2_TRAILER);
 
         AcpiOsPrintf ("\n");
-        (void) AcpiDmDumpTable (Table->Length, Offset, ArmSubtable,
-            Table->Length - Offset, AcpiDmTableInfoTpm211);
+        (void) AcpiDmDumpTable (Length, Offset, ArmSubtable,
+            Length - Offset, AcpiDmTableInfoTpm211);
         break;
 
     default:
@@ -620,11 +644,14 @@ AcpiDmDumpVrtc (
     ACPI_STATUS             Status;
     UINT32                  Offset = sizeof (ACPI_TABLE_VRTC);
     ACPI_VRTC_ENTRY         *Subtable;
+    UINT32                  Length;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoVrtc);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoVrtc);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -633,12 +660,12 @@ AcpiDmDumpVrtc (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_VRTC_ENTRY, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < Length)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (Length, Offset, Subtable,
             sizeof (ACPI_VRTC_ENTRY), AcpiDmTableInfoVrtc0);
         if (ACPI_FAILURE (Status))
         {
@@ -673,11 +700,14 @@ AcpiDmDumpWdat (
     ACPI_STATUS             Status;
     UINT32                  Offset = sizeof (ACPI_TABLE_WDAT);
     ACPI_WDAT_ENTRY         *Subtable;
+    UINT32                  Length;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoWdat);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
+    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoWdat);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -686,12 +716,12 @@ AcpiDmDumpWdat (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_WDAT_ENTRY, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < Length)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (Length, Offset, Subtable,
             sizeof (ACPI_WDAT_ENTRY), AcpiDmTableInfoWdat0);
         if (ACPI_FAILURE (Status))
         {
@@ -726,12 +756,14 @@ AcpiDmDumpWpbt (
 {
     ACPI_STATUS             Status;
     ACPI_TABLE_WPBT         *Subtable;
-    UINT32                  Length = Table->Length;
+    UINT32                  Length;
     UINT16                  ArgumentsLength;
 
 
     /* Dump the main table */
 
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
     Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoWpbt);
     if (ACPI_FAILURE (Status))
     {
@@ -745,6 +777,6 @@ AcpiDmDumpWpbt (
 
     /* Dump the arguments buffer */
 
-    (void) AcpiDmDumpTable (Table->Length, 0, Table, ArgumentsLength,
+    (void) AcpiDmDumpTable (Length, 0, Table, ArgumentsLength,
         AcpiDmTableInfoWpbt0);
 }
