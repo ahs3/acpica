@@ -655,8 +655,23 @@ XfNamespaceLocateBegin (
      */
     AslGbl_NsLookupCount++;
 
-    Status = AcpiNsLookup (WalkState->ScopeInfo, Path, ObjectType,
-        ACPI_IMODE_EXECUTE, Flags, WalkState, &Node);
+    {
+        const int NAMELEN = 20 * ACPI_NAMESEG_SIZE;
+	char TmpPath[NAMELEN+1];
+	int Len;
+
+        memset(TmpPath, 0, NAMELEN+1);
+	if (Path)
+	{
+            Len = strlen(Path);
+            Len = Len > NAMELEN ? NAMELEN : Len;
+            memcpy(TmpPath, Path, Len);
+            AcpiUtConvertHostPathToLE(TmpPath, TmpPath, Len);
+	}
+
+        Status = AcpiNsLookup (WalkState->ScopeInfo, TmpPath, ObjectType,
+            ACPI_IMODE_EXECUTE, Flags, WalkState, &Node);
+    }
     if (ACPI_FAILURE (Status))
     {
         if (Status == AE_NOT_FOUND)
