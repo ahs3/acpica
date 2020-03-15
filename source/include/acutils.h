@@ -1286,4 +1286,16 @@ AcpiUtConvertLEToHostInt (
     void                    *SrcPtr,
     UINT32                  SrcCount);
 
+void
+AcpiUtConvertHostPathToLE (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount);
+
+void
+AcpiUtConvertLEToHostPath (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount);
+
 #endif /* _ACUTILS_H */

@@ -43,6 +43,7 @@
 
 #include "acpi.h"
 #include "accommon.h"
+#include "amlcode.h"
 
 #define _COMPONENT          ACPI_COMPILER
         ACPI_MODULE_NAME    ("utendian")
@@ -160,6 +161,66 @@ __SwapBytes (
     return;
 }
 
+static void
+__SwapPath (
+    void                    *DstPtr,
+    void                    *SrcPtr)
+    UINT32                  ByteCount)
+{
+    UINT8                   *Src = (UINT8 *)SrcPtr;
+    UINT8                   *Dst = (UINT8 *)DstPtr;
+    UINT32                  SegmentCount = 0;
+    UINT8                   Buffer[ACPI_NAMESEG_SIZE * 3];
+    int                     ii;
+
+    /* how long is the path? */
+     
+    memcpy(Buffer, Src, ACPI_NAMESEG_SIZE);
+    __SwapBytes(&Buffer, 4, &Buffer, 4);
+
+    SegmentCount = 1;
+    for (ii = 0; ii < ACPI_NAMESEG_SIZE; ii++)
+    {
+        if (Buffer[ii] == AML_ROOT_PREFIX || Buffer[ii] == AML_PARENT_PREFIX)
+	        continue;
+	else if (Buffer[ii] == AML_DUAL_NAME_PREFIX)
+	{
+	    SegmentCount = 2;
+	    break;
+	}
+	else if (Buffer[ii] == AML_MULTI_NAME_PREFIX)
+	{
+	    SegmentCount = Buffer[ii+1];
+	    break;
+	}
+	else
+	{
+	    if (ii == ACPI_NAMESEG_SIZE - 1 && ByteCount < 4)
+	    {
+    		memcpy(Buffer, Src + (ByteCount * 4), ACPI_NAMESEG_SIZE);
+    		__SwapBytes(&Buffer, 4, &Buffer, 4);
+
+		SegmentCount++;
+		ii = -1;
+	    }
+	    else
+	        /* all done -- we have to start with a prefix */
+		break;
+	}
+    }
+
+    SegmentCount = (ByteCount/4) > SegmentCount ? SegmentCount : ByteCount/4;
+
+    for (ii = 0; ii < SegmentCount; ii++)
+    {
+        int Offset;
+
+	Offset = ii * ACPI_NAMESEG_SIZE;
+        memcpy(Dst + Offset, Src + Offset, ACPI_NAMESEG_SIZE);
+	__SwapByte(Dst + Offset, 4, Dst + Offset, 4);
+    }
+}
+
 #endif
 
 /*******************************************************************************
@@ -218,7 +279,7 @@ AcpiUtConvertHostIntToLE (
  * RETURN:      None. Output data is returned via DstPtr
  *
  * DESCRIPTION: Convert an unsigned integer little-endian value to host-native
- *              form; on a littleig-endian host, this is a null function.
+ *              form; on a little-endian host, this is a null function.
  *
  *              NB: NEVER EVER use this as a memcpy(); use it only when you
  *              need to ensure a value is little-endian.
@@ -249,3 +310,85 @@ AcpiUtConvertLEToHostInt (
 
 #endif
 
+/*******************************************************************************
+ *
+ * FUNCTION:    AcpiUtConvertLEToHostPath
+ *
+ * PARAMETERS:	DstPtr              - where to place the converted value
+ *              DstCount            - number of bytes in the destination path
+ *              SrcPtr              - pointer to path to convert to
+ *                                    little-endian
+ *              SrcCount            - number of bytes in the source path
+ *
+ * RETURN:      None. Output data is returned via DstPtr
+ *
+ * DESCRIPTION: Convert a little-endian path name to a host-native
+ *              form; on a little-endian host, this is a null function.
+ *
+ *              NB: NEVER EVER use this as a memcpy(); use it only when you
+ *              need to ensure a value is little-endian.
+ *
+ ******************************************************************************/
+
+#ifdef ACPI_BIG_ENDIAN
+
+void
+AcpiUtConvertLEToHostPath (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount)
+{
+    __SwapPatch(SrcPtr, DstPtr, ByteCount);
+}
+
+#else
+
+void
+AcpiUtConvertLEToHostPath (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount)
+{ }
+
+#endif
+
+/*******************************************************************************
+ *
+ * FUNCTION:    AcpiUtConvertHostPathToLE
+ *
+ * PARAMETERS:	DstPtr              - where to place the converted value
+ *              SrcPtr              - pointer to path to convert to
+ *                                    little-endian
+ *              ByteCount           - number of bytes available
+ *
+ * RETURN:      None. Output data is returned via DstPtr
+ *
+ * DESCRIPTION: Convert a host-native path name to a little-endian form.  On
+ *		a little-endian host, this is a null function.
+ *
+ *              NB: NEVER EVER use this as a memcpy(); use it only when you
+ *              need to ensure a value is little-endian.
+ *
+ ******************************************************************************/
+
+#ifdef ACPI_BIG_ENDIAN
+
+void
+AcpiUtConvertHostPathToLE (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount)
+{
+    __SwapPath(SrcPtr, DstPtr, ByteCount);
+}
+
+#else
+
+void
+AcpiUtConvertHostPathToLE (
+    void                    *DstPtr,
+    void                    *SrcPtr,
+    UINT32                  ByteCount)
+{ }
+
+#endif
