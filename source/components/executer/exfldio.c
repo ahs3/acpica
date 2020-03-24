@@ -789,8 +789,8 @@ AcpiExWriteWithUpdateRule (
 
             ACPI_ERROR ((AE_INFO,
                 "Unknown UpdateRule value: 0x%X",
-                (ObjDesc->CommonField.FieldFlags &
-                    AML_FIELD_UPDATE_RULE_MASK)));
+                (unsigned int) (ObjDesc->CommonField.FieldFlags &
+                                   AML_FIELD_UPDATE_RULE_MASK)));
             return_ACPI_STATUS (AE_AML_OPERAND_VALUE);
         }
     }

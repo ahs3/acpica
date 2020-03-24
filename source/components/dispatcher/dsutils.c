@@ -894,7 +894,7 @@ AcpiDsCreateOperands (
     }
 
     ACPI_DEBUG_PRINT ((ACPI_DB_DISPATCH,
-        "NumOperands %d, ArgCount %d, Index %d\n",
+        "NumOperands %d, ArgCount %u, Index %u\n",
         WalkState->NumOperands, ArgCount, Index));
 
     /* Create the interpreter arguments, in reverse order */

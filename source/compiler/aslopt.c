@@ -691,7 +691,7 @@ OptOptimizeNamePath (
     }
 
     ACPI_DEBUG_PRINT_RAW ((ACPI_DB_OPTIMIZATIONS,
-        "PATH OPTIMIZE: Line %5d ParentOp [%12.12s] ThisOp [%12.12s] ",
+        "PATH OPTIMIZE: Line %5u ParentOp [%12.12s] ThisOp [%12.12s] ",
         Op->Asl.LogicalLineNumber,
         AcpiPsGetOpcodeName (Op->Common.Parent->Common.AmlOpcode),
         AcpiPsGetOpcodeName (Op->Common.AmlOpcode)));

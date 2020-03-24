@@ -341,7 +341,7 @@ AcpiTbInitGenericAddress (
         if (!(Flags & ACPI_FADT_GPE_REGISTER))
         {
             ACPI_ERROR ((AE_INFO,
-                "%s - 32-bit FADT register is too long (%u bytes, %u bits) "
+                "%s - 32-bit FADT register is too long (%u bytes, %d bits) "
                 "to convert to GAS struct - 255 bits max, truncating",
                 RegisterName, ByteWidth, (ByteWidth * 8)));
         }
@@ -412,7 +412,7 @@ AcpiTbSelectAddress (
 
         ACPI_BIOS_WARNING ((AE_INFO,
             "32/64X %s address mismatch in FADT: "
-            "0x%8.8X/0x%8.8X%8.8X, using %u-bit address",
+            "0x%8.8X/0x%8.8X%8.8X, using %d-bit address",
             RegisterName, Address32, ACPI_FORMAT_UINT64 (Address64),
             AcpiGbl_Use32BitFadtAddresses ? 32 : 64));
 
@@ -728,7 +728,7 @@ AcpiTbConvertFadt (
 
                     ACPI_BIOS_WARNING ((AE_INFO,
                         "32/64X address mismatch in FADT/%s: "
-                        "0x%8.8X/0x%8.8X%8.8X, using %u-bit address",
+                        "0x%8.8X/0x%8.8X%8.8X, using %d-bit address",
                         Name, Address32,
                         ACPI_FORMAT_UINT64 (Address64->Address),
                         AcpiGbl_Use32BitFadtAddresses ? 32 : 64));

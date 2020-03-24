@@ -417,7 +417,7 @@ ApCheckPackage (
 
         if (Count & 1)
         {
-            sprintf (AslGbl_MsgBuffer, "%4.4s: Package length, %d, must be even.",
+            sprintf (AslGbl_MsgBuffer, "%4.4s: Package length, %u, must be even.",
                 Predefined->Info.Name, Count);
 
             AslError (ASL_ERROR, ASL_MSG_RESERVED_PACKAGE_LENGTH,

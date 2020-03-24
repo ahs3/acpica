@@ -786,7 +786,7 @@ AcpiExDumpOperand (
     if (Depth > 0)
     {
         ACPI_DEBUG_PRINT ((ACPI_DB_EXEC, "%*s[%u] %p Refs=%u ",
-            Depth, " ", Depth, ObjDesc, ObjDesc->Common.ReferenceCount));
+            (int) Depth, " ", Depth, ObjDesc, ObjDesc->Common.ReferenceCount));
     }
     else
     {

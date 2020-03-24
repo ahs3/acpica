@@ -338,7 +338,7 @@ AcpiDbExecuteMethod (
             ACPI_ERROR ((AE_INFO,
                 "Possible buffer overflow within AML Debugger "
                 "buffer (size 0x%X needed 0x%X)",
-                ACPI_DEBUG_BUFFER_SIZE, (UINT32) ReturnObj->Length));
+                (UINT32) ACPI_DEBUG_BUFFER_SIZE, (UINT32) ReturnObj->Length));
         }
     }
 

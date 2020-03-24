@@ -568,7 +568,7 @@ AcpiHwClearAcpiStatus (
 
 
     ACPI_DEBUG_PRINT ((ACPI_DB_IO, "About to write %04X to %8.8X%8.8X\n",
-        ACPI_BITMASK_ALL_FIXED_STATUS,
+        (UINT32) ACPI_BITMASK_ALL_FIXED_STATUS,
         ACPI_FORMAT_UINT64 (AcpiGbl_XPm1aStatus.Address)));
 
     LockFlags = AcpiOsAcquireLock (AcpiGbl_HardwareLock);
