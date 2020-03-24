@@ -521,7 +521,6 @@ AcpiDmIsResourceTemplate (
     NextOp = Op->Common.Value.Arg;
     if (!NextOp)
     {
-        AcpiOsPrintf ("NULL byte list in buffer\n");
         return (AE_TYPE);
     }
 

@@ -400,6 +400,10 @@ AcpiDmIsUuidBuffer (
     /* Buffer size is the buffer argument */
 
     SizeOp = Op->Common.Value.Arg;
+    if (!SizeOp)
+    {
+        return (FALSE);
+    }
 
     /* Next, the initializer byte list to examine */
 
@@ -520,6 +524,10 @@ AcpiDmIsUnicodeBuffer (
     /* Buffer size is the buffer argument */
 
     SizeOp = Op->Common.Value.Arg;
+    if (!SizeOp)
+    {
+        return (FALSE);
+    }
 
     /* Next, the initializer byte list to examine */
 
@@ -596,6 +604,10 @@ AcpiDmIsStringBuffer (
     /* Buffer size is the buffer argument */
 
     SizeOp = Op->Common.Value.Arg;
+    if (!SizeOp)
+    {
+        return (FALSE);
+    }
 
     /* Next, the initializer byte list to examine */
 
@@ -681,6 +693,11 @@ AcpiDmIsPldBuffer (
      * be a BYTE constant.
      */
     SizeOp = Op->Common.Value.Arg;
+    if (!SizeOp)
+    {
+        return (FALSE);
+    }
+
     if (SizeOp->Common.AmlOpcode != AML_BYTE_OP)
     {
         return (FALSE);
