@@ -755,6 +755,7 @@ AcpiNsLookup (
         /* Extract one ACPI name from the front of the pathname */
 
         ACPI_MOVE_32_TO_32 (&SimpleName, Path);
+	AcpiUtConvertHostIntToLE(&SimpleName, 4, &SimpleName, 4);
 
         /* Try to find the single (4 character) ACPI name */
 
