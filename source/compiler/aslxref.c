@@ -155,6 +155,7 @@
 #include "amlcode.h"
 #include "acnamesp.h"
 #include "acdispat.h"
+#include "acutils.h"
 
 
 #define _COMPONENT          ACPI_COMPILER
@@ -655,8 +656,16 @@ XfNamespaceLocateBegin (
      */
     AslGbl_NsLookupCount++;
 
-    Status = AcpiNsLookup (WalkState->ScopeInfo, Path, ObjectType,
-        ACPI_IMODE_EXECUTE, Flags, WalkState, &Node);
+    {
+        const int MAXLEN = ACPI_NAMESEG_SIZE * ACPI_MAX_NAMESEGS;
+	char Buf[MAXLEN];
+
+	memset(Buf, 0, MAXLEN);
+
+	AcpiUtConvertHostPathToLE(Buf, Path, ACPI_MAX(strlen(Path), MAXLEN));
+        Status = AcpiNsLookup (WalkState->ScopeInfo, Buf, ObjectType,
+            ACPI_IMODE_EXECUTE, Flags, WalkState, &Node);
+    }
     if (ACPI_FAILURE (Status))
     {
         if (Status == AE_NOT_FOUND)

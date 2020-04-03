@@ -471,6 +471,7 @@ AcpiNsBuildInternalName (
 
         /* Move on the next segment */
 
+	AcpiUtConvertHostIntToLE(Result, ACPI_NAMESEG_SIZE, Result, ACPI_NAMESEG_SIZE);
         ExternalName++;
         Result += ACPI_NAMESEG_SIZE;
     }

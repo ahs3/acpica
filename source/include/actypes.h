@@ -522,6 +522,7 @@ typedef UINT64                          ACPI_PHYSICAL_ADDRESS;
 #define ACPI_NAMESEG_SIZE               4           /* Fixed by ACPI spec */
 #define ACPI_PATH_SEGMENT_LENGTH        5           /* 4 chars for name + 1 char for separator */
 #define ACPI_PATH_SEPARATOR             '.'
+#define ACPI_MAX_NAMESEGS               64          /* 256 bytes, total */
 
 /* Sizes for ACPI table headers */
 
