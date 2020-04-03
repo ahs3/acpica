@@ -358,34 +358,35 @@ $(OBJDIR)/prparserparse.c $(OBJDIR)/prparser.y.h :       $(ASL_COMPILER)/prparse
 # Cannot use the common compile warning flags since the C files are created
 # by the utilities above and they are not necessarily ANSI C, etc.
 #
+HARDENING_FLAGS = -fPIC -pie
 $(OBJDIR)/aslcompilerlex.o :   $(OBJDIR)/aslcompilerlex.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/aslcompilerparse.o : $(OBJDIR)/aslcompilerparse.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/dtcompilerparserlex.o :      $(OBJDIR)/dtcompilerparserlex.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/dtcompilerparserparse.o :    $(OBJDIR)/dtcompilerparserparse.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/dtparserlex.o :      $(OBJDIR)/dtparserlex.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/dtparserparse.o :    $(OBJDIR)/dtparserparse.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/prparserlex.o :      $(OBJDIR)/prparserlex.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<
 
 $(OBJDIR)/prparserparse.o :    $(OBJDIR)/prparserparse.c
 	@echo "- " "Intermediate" $<
-	@$(CC) -c $(CFLAGS) -Wall -Werror -o$@ $<
+	@$(CC) -c $(CFLAGS) $(HARDENING_FLAGS) -Wall -Werror -o$@ $<

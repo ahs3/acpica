@@ -267,14 +267,19 @@ ApCheckForPredefinedMethod (
         if (MethodInfo->NumReturnNoValue &&
             ThisName->Info.ExpectedBtypes)
         {
+	     int cnt;
+	     char *strp;
+
             AcpiUtGetExpectedReturnTypes (AslGbl_StringBuffer,
                 ThisName->Info.ExpectedBtypes);
 
-            sprintf (AslGbl_MsgBuffer, "%s required for %4.4s",
-                AslGbl_StringBuffer, ThisName->Info.Name);
+            cnt = asprintf (&strp, "%s required for %4.4s",
+	        AslGbl_StringBuffer, ThisName->Info.Name);
 
             AslError (ASL_WARNING, ASL_MSG_RESERVED_RETURN_VALUE, Op,
-                AslGbl_MsgBuffer);
+                strp);
+	     if (cnt > 0)
+	        free(strp);
         }
         break;
     }
@@ -806,18 +811,26 @@ TypeErrorExit:
 
     AcpiUtGetExpectedReturnTypes (AslGbl_StringBuffer, ExpectedBtypes);
 
-    if (PackageIndex == ACPI_NOT_PACKAGE_ELEMENT)
     {
-        sprintf (AslGbl_MsgBuffer, "%4.4s: found %s, %s required",
-            PredefinedName, TypeName, AslGbl_StringBuffer);
-    }
-    else
-    {
-        sprintf (AslGbl_MsgBuffer, "%4.4s: found %s at index %u, %s required",
-            PredefinedName, TypeName, PackageIndex, AslGbl_StringBuffer);
+	 int cnt;
+	 char *strp;
+
+        if (PackageIndex == ACPI_NOT_PACKAGE_ELEMENT)
+        {
+            cnt = asprintf (&strp, "%4.4s: found %s, %s required",
+                PredefinedName, TypeName, AslGbl_StringBuffer);
+        }
+        else
+        {
+            cnt = asprintf (&strp, "%4.4s: found %s at index %u, %s required",
+                PredefinedName, TypeName, PackageIndex, AslGbl_StringBuffer);
+        }
+
+	 AslError (ASL_ERROR, ASL_MSG_RESERVED_OPERAND_TYPE, Op, strp);
+	 if (cnt > 0)
+	     free(strp);
     }
 
-    AslError (ASL_ERROR, ASL_MSG_RESERVED_OPERAND_TYPE, Op, AslGbl_MsgBuffer);
     return (AE_TYPE);
 }
 

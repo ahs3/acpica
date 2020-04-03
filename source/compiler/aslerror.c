@@ -1025,7 +1025,7 @@ AslLogNewError (
     AslGbl_ExceptionCount[ModifiedLevel]++;
     if (!AslGbl_IgnoreErrors && AslGbl_ExceptionCount[ASL_ERROR] > ASL_MAX_ERROR_COUNT)
     {
-        printf ("\nMaximum error count (%u) exceeded\n", ASL_MAX_ERROR_COUNT);
+        printf ("\nMaximum error count (%d) exceeded\n", ASL_MAX_ERROR_COUNT);
 
         AslGbl_SourceLine = 0;
         AslGbl_NextError = AslGbl_ErrorLog;

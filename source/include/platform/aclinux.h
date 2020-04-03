@@ -306,6 +306,7 @@
 
 #ifdef ACPI_USE_STANDARD_HEADERS
 #include <unistd.h>
+#include <endian.h>
 #endif
 
 /* Define/disable kernel-specific declarators */
@@ -322,9 +323,7 @@
 #define ACPI_FLUSH_CPU_CACHE()
 #define ACPI_CAST_PTHREAD_T(Pthread) ((ACPI_THREAD_ID) (Pthread))
 
-#if defined(__ia64__)    || (defined(__x86_64__) && !defined(__ILP32__)) ||\
-    defined(__aarch64__) || defined(__PPC64__) ||\
-    defined(__s390x__)
+#if defined(__LP64__)
 #define ACPI_MACHINE_WIDTH          64
 #define COMPILER_DEPENDENT_INT64    long
 #define COMPILER_DEPENDENT_UINT64   unsigned long
@@ -338,6 +337,10 @@
 
 #ifndef __cdecl
 #define __cdecl
+#endif
+
+#if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#define ACPI_BIG_ENDIAN
 #endif
 
 #endif /* __KERNEL__ */

@@ -257,7 +257,7 @@ AcpiDsScopeStackPush (
     WalkState->ScopeDepth++;
 
     ACPI_DEBUG_PRINT ((ACPI_DB_EXEC,
-        "[%.2d] Pushed scope ", (UINT32) WalkState->ScopeDepth));
+        "[%.2d] Pushed scope ", WalkState->ScopeDepth));
 
     OldScopeInfo = WalkState->ScopeInfo;
     if (OldScopeInfo)
@@ -319,7 +319,7 @@ AcpiDsScopeStackPop (
     WalkState->ScopeDepth--;
 
     ACPI_DEBUG_PRINT ((ACPI_DB_EXEC,
-        "[%.2d] Popped scope [%4.4s] (%s), New scope -> ",
+        "[%.2u] Popped scope [%4.4s] (%s), New scope -> ",
         (UINT32) WalkState->ScopeDepth,
         AcpiUtGetNodeName (ScopeInfo->Scope.Node),
         AcpiUtGetTypeName (ScopeInfo->Common.Value)));

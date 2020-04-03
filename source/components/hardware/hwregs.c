@@ -305,7 +305,7 @@ AcpiHwValidateRegister (
      * Address must not be null. A null address also indicates an optional
      * ACPI register that is not supported, so no error message.
      */
-    ACPI_MOVE_64_TO_64 (Address, &Reg->Address);
+    *Address =  Reg->Address;
     if (!(*Address))
     {
         return (AE_BAD_ADDRESS);
@@ -568,7 +568,7 @@ AcpiHwClearAcpiStatus (
 
 
     ACPI_DEBUG_PRINT ((ACPI_DB_IO, "About to write %04X to %8.8X%8.8X\n",
-        ACPI_BITMASK_ALL_FIXED_STATUS,
+        (UINT32) ACPI_BITMASK_ALL_FIXED_STATUS,
         ACPI_FORMAT_UINT64 (AcpiGbl_XPm1aStatus.Address)));
 
     LockFlags = AcpiOsAcquireLock (AcpiGbl_HardwareLock);

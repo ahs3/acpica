@@ -466,11 +466,16 @@ AnCheckMethodReturnValue (
          */
         if (ThisNodeBtype != 0)
         {
-            sprintf (AslGbl_MsgBuffer,
+	     int cnt;
+	     char *strp;
+
+            cnt = asprintf (&strp,
                 "Method returns [%s], %s operator requires [%s]",
                 AslGbl_StringBuffer, OpInfo->Name, AslGbl_StringBuffer2);
 
-            AslError (ASL_ERROR, ASL_MSG_INVALID_TYPE, ArgOp, AslGbl_MsgBuffer);
+            AslError (ASL_ERROR, ASL_MSG_INVALID_TYPE, ArgOp, strp);
+	     if (cnt > 0)
+	         free(strp);
         }
     }
 
@@ -577,7 +582,7 @@ ApCheckForGpeNameConflict (
 
     /* Need a null-terminated string version of NameSeg */
 
-    ACPI_MOVE_32_TO_32 (Name, Op->Asl.NameSeg);
+    ACPI_COPY_NAMESEG (Name, Op->Asl.NameSeg);
     Name[ACPI_NAMESEG_SIZE] = 0;
 
     /*
@@ -604,7 +609,7 @@ ApCheckForGpeNameConflict (
      * We are now sure we have an _Lxx or _Exx.
      * Create the target name that would cause collision (Flip E/L)
      */
-    ACPI_MOVE_32_TO_32 (Target, Name);
+    ACPI_COPY_NAMESEG (Target, Name);
 
     /* Inject opposite letter ("L" versus "E") */
 

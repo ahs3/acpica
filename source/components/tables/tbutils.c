@@ -346,9 +346,11 @@ AcpiTbGetRootTableEntry (
          * 64-bit platform, XSDT: Move (unaligned) 64-bit to local,
          *  return 64-bit
          */
-        ACPI_MOVE_64_TO_64 (&Address64, TableEntry);
 
 #if ACPI_MACHINE_WIDTH == 32
+	UINT32 Tmp32 = (UINT32) TableEntry;
+
+	Address64 = (UINT64) Tmp32;
         if (Address64 > ACPI_UINT32_MAX)
         {
             /* Will truncate 64-bit address to 32 bits, issue warning */
@@ -358,8 +360,15 @@ AcpiTbGetRootTableEntry (
                 " truncating",
                 ACPI_FORMAT_UINT64 (Address64)));
         }
+
+        return ((ACPI_PHYSICAL_ADDRESS) (*ACPI_CAST_PTR (
+            UINT32, TableEntry)));
+#else
+	Address64 = (UINT64) TableEntry;
+
+        return ((ACPI_PHYSICAL_ADDRESS) (*ACPI_CAST_PTR (
+            UINT64, Address64)));
 #endif
-        return ((ACPI_PHYSICAL_ADDRESS) (Address64));
     }
 }
 
@@ -395,6 +404,7 @@ AcpiTbParseRootTable (
     UINT8                   *TableEntry;
     ACPI_STATUS             Status;
     UINT32                  TableIndex;
+    UINT32                  Tmp32;
 
 
     ACPI_FUNCTION_TRACE (TbParseRootTable);
@@ -453,7 +463,7 @@ AcpiTbParseRootTable (
      * Validate length of the table, and map entire table.
      * Minimum length table must contain at least one entry.
      */
-    Length = Table->Length;
+    ACPI_MOVE_32_TO_32(&Length, &Table->Length);
     AcpiOsUnmapMemory (Table, sizeof (ACPI_TABLE_HEADER));
 
     if (Length < (sizeof (ACPI_TABLE_HEADER) + TableEntrySize))
@@ -480,7 +490,7 @@ AcpiTbParseRootTable (
 
     /* Get the number of entries and pointer to first entry */
 
-    TableCount = (UINT32) ((Table->Length - sizeof (ACPI_TABLE_HEADER)) /
+    TableCount = (UINT32) ((Length - sizeof (ACPI_TABLE_HEADER)) /
         TableEntrySize);
     TableEntry = ACPI_ADD_PTR (UINT8, Table, sizeof (ACPI_TABLE_HEADER));
 
@@ -502,10 +512,10 @@ AcpiTbParseRootTable (
         Status = AcpiTbInstallStandardTable (Address,
             ACPI_TABLE_ORIGIN_INTERNAL_PHYSICAL, FALSE, TRUE, &TableIndex);
 
+	ACPI_MOVE_32_TO_32(&Tmp32,
+			   &AcpiGbl_RootTableList.Tables[TableIndex].Signature);
         if (ACPI_SUCCESS (Status) &&
-            ACPI_COMPARE_NAMESEG (
-                &AcpiGbl_RootTableList.Tables[TableIndex].Signature,
-                ACPI_SIG_FADT))
+            ACPI_COMPARE_NAMESEG (&Tmp32, ACPI_SIG_FADT))
         {
             AcpiGbl_FadtIndex = TableIndex;
             AcpiTbParseFadt ();

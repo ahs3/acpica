@@ -345,7 +345,7 @@ AcpiExNameSegment (
          */
         ACPI_DEBUG_PRINT ((ACPI_DB_INFO,
             "Leading character is not alpha: %02Xh (not a name)\n",
-            CharBuf[0]));
+            (unsigned int) CharBuf[0]));
         Status = AE_CTRL_PENDING;
     }
     else
@@ -357,7 +357,7 @@ AcpiExNameSegment (
         Status = AE_AML_BAD_NAME;
         ACPI_ERROR ((AE_INFO,
             "Bad character 0x%02x in name, at %p",
-            *AmlAddress, AmlAddress));
+            (unsigned int) (*AmlAddress), AmlAddress));
     }
 
     *InAmlAddress = ACPI_CAST_PTR (UINT8, AmlAddress);

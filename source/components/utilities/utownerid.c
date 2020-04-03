@@ -345,7 +345,7 @@ AcpiUtReleaseOwnerId (
     else
     {
         ACPI_ERROR ((AE_INFO,
-            "Attempted release of non-allocated OwnerId: 0x%3.3X", OwnerId + 1));
+            "Release of non-allocated OwnerId: 0x%2.2X", (UINT32) OwnerId + 1));
     }
 
     (void) AcpiUtReleaseMutex (ACPI_MTX_CACHES);

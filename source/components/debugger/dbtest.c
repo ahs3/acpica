@@ -827,9 +827,10 @@ AcpiDbTestStringType (
     ACPI_OBJECT             *Temp1 = NULL;
     ACPI_OBJECT             *Temp2 = NULL;
     ACPI_OBJECT             *Temp3 = NULL;
-    char                    *ValueToWrite = "Test String from AML Debugger";
+    char                    *ValueToWrite = NULL;
     ACPI_OBJECT             WriteValue;
     ACPI_STATUS             Status;
+    const char              *TestStr = "Test String from AML Debugger";
 
 
     /* Read the original value */
@@ -844,6 +845,9 @@ AcpiDbTestStringType (
         Temp1->String.Length, Temp1->String.Pointer);
 
     /* Write a new value */
+
+    ValueToWrite = AcpiOsAllocateZeroed(strlen(TestStr)+1);
+    strncpy(ValueToWrite, TestStr, strlen(TestStr)+1);
 
     WriteValue.Type = ACPI_TYPE_STRING;
     WriteValue.String.Length = strlen (ValueToWrite);
@@ -898,6 +902,7 @@ Exit:
     if (Temp1) {AcpiOsFree (Temp1);}
     if (Temp2) {AcpiOsFree (Temp2);}
     if (Temp3) {AcpiOsFree (Temp3);}
+    if (ValueToWrite) {AcpiOsFree (ValueToWrite);}
     return (Status);
 }
 

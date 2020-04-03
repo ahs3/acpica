@@ -399,7 +399,7 @@ AcpiDsMethodDataGetNode (
         if (Index > ACPI_METHOD_MAX_LOCAL)
         {
             ACPI_ERROR ((AE_INFO,
-                "Local index %u is invalid (max %u)",
+                "Local index %u is invalid (max %d)",
                 Index, ACPI_METHOD_MAX_LOCAL));
             return_ACPI_STATUS (AE_AML_INVALID_INDEX);
         }
@@ -414,7 +414,7 @@ AcpiDsMethodDataGetNode (
         if (Index > ACPI_METHOD_MAX_ARG)
         {
             ACPI_ERROR ((AE_INFO,
-                "Arg index %u is invalid (max %u)",
+                "Arg index %u is invalid (max %d)",
                 Index, ACPI_METHOD_MAX_ARG));
             return_ACPI_STATUS (AE_AML_INVALID_INDEX);
         }

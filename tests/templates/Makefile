@@ -26,7 +26,7 @@ $(aml_obj): %.aml:  %.asl
 
 
 templates :
-	sh templates.sh
+	sh templates.sh 1
 
 .PHONY: clean
 clean:

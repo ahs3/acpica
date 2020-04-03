@@ -596,7 +596,7 @@ AcpiEvGpeDetect (
                     "Ignore disabled registers for GPE %02X-%02X: "
                     "RunEnable=%02X, WakeEnable=%02X\n",
                     GpeRegisterInfo->BaseGpeNumber,
-                    GpeRegisterInfo->BaseGpeNumber + (ACPI_GPE_REGISTER_WIDTH - 1),
+                    (unsigned int) (GpeRegisterInfo->BaseGpeNumber + (ACPI_GPE_REGISTER_WIDTH - 1)),
                     GpeRegisterInfo->EnableForRun,
                     GpeRegisterInfo->EnableForWake));
                 continue;

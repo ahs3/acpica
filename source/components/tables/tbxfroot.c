@@ -285,7 +285,7 @@ AcpiFindRootPointer (
     {
         ACPI_ERROR ((AE_INFO,
             "Could not map memory at 0x%8.8X for length %u",
-            ACPI_EBDA_PTR_LOCATION, ACPI_EBDA_PTR_LENGTH));
+            (UINT32) ACPI_EBDA_PTR_LOCATION, (UINT32) ACPI_EBDA_PTR_LENGTH));
 
         return_ACPI_STATUS (AE_NO_MEMORY);
     }
@@ -312,7 +312,7 @@ AcpiFindRootPointer (
         {
             ACPI_ERROR ((AE_INFO,
                 "Could not map memory at 0x%8.8X for length %u",
-                PhysicalAddress, ACPI_EBDA_WINDOW_SIZE));
+                PhysicalAddress, (UINT32) ACPI_EBDA_WINDOW_SIZE));
 
             return_ACPI_STATUS (AE_NO_MEMORY);
         }
@@ -344,7 +344,7 @@ AcpiFindRootPointer (
     {
         ACPI_ERROR ((AE_INFO,
             "Could not map memory at 0x%8.8X for length %u",
-            ACPI_HI_RSDP_WINDOW_BASE, ACPI_HI_RSDP_WINDOW_SIZE));
+            (UINT32) ACPI_HI_RSDP_WINDOW_BASE, (UINT32) ACPI_HI_RSDP_WINDOW_SIZE));
 
         return_ACPI_STATUS (AE_NO_MEMORY);
     }

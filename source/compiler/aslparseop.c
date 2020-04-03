@@ -391,7 +391,20 @@ TrCreateValuedLeafOp (
 
 
     Op = TrAllocateOp (ParseOpcode);
-    Op->Asl.Value.Integer = Value;
+    if (ParseOpcode == PARSEOP_NAMESTRING ||
+        ParseOpcode == PARSEOP_NAMESEG ||
+        ParseOpcode == PARSEOP_STRING_LITERAL)
+    {
+#if ACPI_MACHINE_WIDTH == 32
+        Op->Asl.Value.String = (char *) (UINT32) Value;
+#else
+        Op->Asl.Value.String = (char *) Value;
+#endif
+    }
+    else
+    {
+        Op->Asl.Value.Integer = Value;
+    }
 
     DbgPrint (ASL_PARSE_OUTPUT,
         "\nCreateValuedLeafOp  Ln/Col %u/%u NewOp %p  "

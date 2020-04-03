@@ -623,15 +623,19 @@ AnOperandTypecheckWalkEnd (
             else if (!CommonBtypes)
             {
                 /* No match -- this is a type mismatch error */
+		int cnt;
+		char *strp;
 
                 AnFormatBtype (AslGbl_StringBuffer, ThisNodeBtype);
                 AnFormatBtype (AslGbl_StringBuffer2, RequiredBtypes);
 
-                sprintf (AslGbl_MsgBuffer, "[%s] found, %s operator requires [%s]",
+                cnt = asprintf (&strp, "[%s] found, %s operator requires [%s]",
                     AslGbl_StringBuffer, OpInfo->Name, AslGbl_StringBuffer2);
 
                 AslError (ASL_ERROR, ASL_MSG_INVALID_TYPE,
-                    ArgOp, AslGbl_MsgBuffer);
+                    ArgOp, strp);
+		if (cnt > 0)
+		    free(strp);
             }
 
         NextArgument:
