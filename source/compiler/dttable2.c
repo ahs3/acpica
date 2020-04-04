@@ -152,6 +152,7 @@
 /* Compile all complex data tables, signatures starting with L-Z */
 
 #include "aslcompiler.h"
+#include "acutils.h"
 
 #define _COMPONENT          DT_COMPILER
         ACPI_MODULE_NAME    ("dttable2")
@@ -1195,8 +1196,11 @@ DtCompilePptt (
                 Subtable->Buffer, sizeof (ACPI_SUBTABLE_HEADER));
             if (PpttProcessor)
             {
+                UINT32 NumPrivRes;
+
                 /* Compile initiator proximity domain list */
 
+		NumPrivRes = 0;
                 PpttProcessor->NumberOfPrivResources = 0;
                 while (*PFieldList)
                 {
@@ -1213,8 +1217,10 @@ DtCompilePptt (
 
                     DtInsertSubtable (ParentTable, Subtable);
                     PpttHeader->Length += (UINT8)(Subtable->Length);
-                    PpttProcessor->NumberOfPrivResources++;
+		    NumPrivRes++;
                 }
+                AcpiUtConvertHostIntToLE(&PpttProcessor->NumberOfPrivResources,
+			       	4, &NumPrivRes, 4);
             }
             break;
 
