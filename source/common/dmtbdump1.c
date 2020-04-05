@@ -193,13 +193,15 @@ AcpiDmDumpAsf (
 
     /* No main table, only subtables */
 
-    ACPI_MOVE_32_TO_32(&Len, &Table->Length);
+    Len = Table->Length;
+    AcpiUtConvertLEToHostInt(&Len, 4, &Len, 4);
     Subtable = ACPI_ADD_PTR (ACPI_ASF_INFO, Table, Offset);
     while (Offset < Len)
     {
         /* Common subtable header */
 
-	ACPI_MOVE_16_TO_16(&SubLen, &Subtable->Header.Length);
+	SubLen = Subtable->Header.Length;
+	AcpiUtConvertLEToHostInt(&SubLen, 2, &SubLen, 2);
         Status = AcpiDmDumpTable (Len, Offset, Subtable,
             SubLen, AcpiDmTableInfoAsfHdr);
         if (ACPI_FAILURE (Status))
