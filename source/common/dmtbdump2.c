@@ -743,7 +743,8 @@ AcpiDmDumpMadt (
 
     /* Main table */
 
-    ACPI_MOVE_32_TO_32(&Length, &Table->Length);
+    Length = Table->Length;
+    AcpiUtConvertLEToHostInt(&Length, 4, &Length, 4);
     Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoMadt);
     if (ACPI_FAILURE (Status))
     {
