@@ -187,16 +187,18 @@ AcpiDmDumpAsf (
     UINT32                  DataOffset = 0;
     UINT32                  i;
     UINT8                   Type;
+    UINT32                  TableLength;
 
 
     /* No main table, only subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_ASF_INFO, Table, Offset);
-    while (Offset < Table->Length)
+    TableLength = AcpiUtReadUint32 (&Table->Length);
+    while (Offset < TableLength)
     {
         /* Common subtable header */
 
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             Subtable->Header.Length, AcpiDmTableInfoAsfHdr);
         if (ACPI_FAILURE (Status))
         {
@@ -254,7 +256,7 @@ AcpiDmDumpAsf (
             return;
         }
 
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             Subtable->Header.Length, InfoTable);
         if (ACPI_FAILURE (Status))
         {
@@ -271,7 +273,7 @@ AcpiDmDumpAsf (
             for (i = 0; i < DataCount; i++)
             {
                 AcpiOsPrintf ("\n");
-                Status = AcpiDmDumpTable (Table->Length, DataOffset,
+                Status = AcpiDmDumpTable (TableLength, DataOffset,
                     DataTable, DataLength, DataInfoTable);
                 if (ACPI_FAILURE (Status))
                 {
