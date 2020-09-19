@@ -668,6 +668,7 @@ DtCompileDmar (
     ACPI_DMAR_DEVICE_SCOPE  *DmarDeviceScope;
     UINT32                  DeviceScopeLength;
     UINT32                  PciPathLength;
+    UINT16                  DmarHeaderType;
 
 
     Status = DtCompileTable (PFieldList, AcpiDmTableInfoDmar, &Subtable);
@@ -698,7 +699,8 @@ DtCompileDmar (
 
         DmarHeader = ACPI_CAST_PTR (ACPI_DMAR_HEADER, Subtable->Buffer);
 
-        switch (DmarHeader->Type)
+        DmarHeaderType = AcpiUtReadUint16 (&DmarHeader->Type);
+        switch (DmarHeaderType)
         {
         case ACPI_DMAR_TYPE_HARDWARE_UNIT:
 
@@ -745,8 +747,8 @@ DtCompileDmar (
         /*
          * Optional Device Scope subtables
          */
-        if ((DmarHeader->Type == ACPI_DMAR_TYPE_HARDWARE_AFFINITY) ||
-            (DmarHeader->Type == ACPI_DMAR_TYPE_NAMESPACE))
+        if ((DmarHeaderType == ACPI_DMAR_TYPE_HARDWARE_AFFINITY) ||
+            (DmarHeaderType == ACPI_DMAR_TYPE_NAMESPACE))
         {
             /* These types do not support device scopes */
 
@@ -755,8 +757,8 @@ DtCompileDmar (
         }
 
         DtPushSubtable (Subtable);
-        DeviceScopeLength = DmarHeader->Length - Subtable->Length -
-            ParentTable->Length;
+        DeviceScopeLength = AcpiUtReadUint16 (&DmarHeader->Length) - 
+                Subtable->Length - ParentTable->Length;
         while (DeviceScopeLength)
         {
             Status = DtCompileTable (PFieldList, AcpiDmTableInfoDmarScope,

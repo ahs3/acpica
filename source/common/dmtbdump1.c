@@ -634,13 +634,15 @@ AcpiDmDumpDmar (
 {
     ACPI_STATUS             Status;
     ACPI_DMAR_HEADER        *Subtable;
-    UINT32                  Length = Table->Length;
+    UINT32                  Length = AcpiUtReadUint32 (&Table->Length);
     UINT32                  Offset = sizeof (ACPI_TABLE_DMAR);
     ACPI_DMTABLE_INFO       *InfoTable;
     ACPI_DMAR_DEVICE_SCOPE  *ScopeTable;
     UINT32                  ScopeOffset;
     UINT8                   *PciPath;
     UINT32                  PathOffset;
+    UINT16                  SubtableType;
+    UINT16                  SubtableLength;
 
 
     /* Main table */
@@ -654,13 +656,14 @@ AcpiDmDumpDmar (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_DMAR_HEADER, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < Length)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
+        SubtableLength = AcpiUtReadUint16 (&Subtable->Length);
         Status = AcpiDmDumpTable (Length, Offset, Subtable,
-            Subtable->Length, AcpiDmTableInfoDmarHdr);
+            SubtableLength, AcpiDmTableInfoDmarHdr);
         if (ACPI_FAILURE (Status))
         {
             return;
@@ -668,7 +671,8 @@ AcpiDmDumpDmar (
 
         AcpiOsPrintf ("\n");
 
-        switch (Subtable->Type)
+        SubtableType = AcpiUtReadUint16 (&Subtable->Type);
+        switch (SubtableType)
         {
         case ACPI_DMAR_TYPE_HARDWARE_UNIT:
 
@@ -703,12 +707,12 @@ AcpiDmDumpDmar (
         default:
 
             AcpiOsPrintf ("\n**** Unknown DMAR subtable type 0x%X\n\n",
-                Subtable->Type);
+                SubtableType);
             return;
         }
 
         Status = AcpiDmDumpTable (Length, Offset, Subtable,
-            Subtable->Length, InfoTable);
+            SubtableLength, InfoTable);
         if (ACPI_FAILURE (Status))
         {
             return;
@@ -717,8 +721,8 @@ AcpiDmDumpDmar (
         /*
          * Dump the optional device scope entries
          */
-        if ((Subtable->Type == ACPI_DMAR_TYPE_HARDWARE_AFFINITY) ||
-            (Subtable->Type == ACPI_DMAR_TYPE_NAMESPACE))
+        if ((SubtableType == ACPI_DMAR_TYPE_HARDWARE_AFFINITY) ||
+            (SubtableType == ACPI_DMAR_TYPE_NAMESPACE))
         {
             /* These types do not support device scopes */
 
@@ -726,7 +730,7 @@ AcpiDmDumpDmar (
         }
 
         ScopeTable = ACPI_ADD_PTR (ACPI_DMAR_DEVICE_SCOPE, Subtable, ScopeOffset);
-        while (ScopeOffset < Subtable->Length)
+        while (ScopeOffset < SubtableLength)
         {
             AcpiOsPrintf ("\n");
             Status = AcpiDmDumpTable (Length, Offset + ScopeOffset, ScopeTable,
@@ -767,9 +771,9 @@ AcpiDmDumpDmar (
 NextSubtable:
         /* Point to next subtable */
 
-        Offset += Subtable->Length;
+        Offset += SubtableLength;
         Subtable = ACPI_ADD_PTR (ACPI_DMAR_HEADER, Subtable,
-            Subtable->Length);
+            SubtableLength);
     }
 }
 
