@@ -61,6 +61,36 @@
 
 /*******************************************************************************
  *
+ * FUNCTION:    AcpiUtReadUint16
+ *
+ * PARAMETERS:  Src		    - location containing the little-endian
+ *                                    value
+ *
+ * RETURN:      UINT16 value in host-native form
+ *
+ * DESCRIPTION: Read a UINT16 little-endian value from a given location
+ *              and return it in host-native form
+ *
+ ******************************************************************************/
+
+#if defined(ACPI_BIG_ENDIAN)
+UINT16 AcpiUtReadUint16 (void *SrcPtr)
+{
+    UINT16 Result = 0;
+    UINT8  *Dst = (UINT8 *)&Result;
+    UINT8  *Src = (UINT8 *)SrcPtr;
+
+    Dst[0] = Src[1];
+    Dst[1] = Src[0];
+
+    return Result;
+}
+#else
+UINT16 AcpiUtReadUint16 (void *SrcPtr) { return *(UINT16 *)SrcPtr; }
+#endif
+
+/*******************************************************************************
+ *
  * FUNCTION:    AcpiUtReadUint32
  *
  * PARAMETERS:  Src		    - location containing the little-endian
@@ -90,6 +120,25 @@ UINT32 AcpiUtReadUint32 (void *SrcPtr)
 #else
 UINT32 AcpiUtReadUint32 (void *SrcPtr) { return *(UINT32 *)SrcPtr; }
 #endif
+
+/*******************************************************************************
+ *
+ * FUNCTION:    AcpiUtWriteUint
+ *
+ * PARAMETERS:  DstPtr		- where to place the retrieved value
+ *	        DstLength	- space in bytes for this int type
+ *	        SrcPtr		- where the little-endian value lives
+ *	        SrcLength	- space in bytes for this int type
+ *
+ * RETURN:      None.
+ *
+ * DESCRIPTION: Write a host-native integer value of the given size, and
+ * 	        store it in the location specified in little-endian form.
+ * 	        Given the amount of integer type casting done, this general
+ * 	        version seems the most useful (vs 32->32, 32->16, 16->32,
+ * 	        ad infinitum)
+ *
+ ******************************************************************************/
 
 #if defined(ACPI_BIG_ENDIAN)
 void AcpiUtWriteUint (void *DstPtr, int DstLength,

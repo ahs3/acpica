@@ -1279,6 +1279,10 @@ UINT32
 AcpiUtReadUint32 (
     void                    *SrcPtr);
 
+UINT16
+AcpiUtReadUint16 (
+    void                    *SrcPtr);
+
 void  
 AcpiUtWriteUint (
     void                    *DstPtr,
