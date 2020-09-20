@@ -123,6 +123,42 @@ UINT32 AcpiUtReadUint32 (void *SrcPtr) { return *(UINT32 *)SrcPtr; }
 
 /*******************************************************************************
  *
+ * FUNCTION:    AcpiUtReadUint64
+ *
+ * PARAMETERS:  Src		    - location containing the little-endian
+ *                                    value
+ *
+ * RETURN:      UINT64 value in host-native form
+ *
+ * DESCRIPTION: Read a UINT64 little-endian value from a given location
+ *              and return it in host-native form
+ *
+ ******************************************************************************/
+
+#if defined(ACPI_BIG_ENDIAN)
+UINT64 AcpiUtReadUint64 (void *SrcPtr)
+{
+    UINT64 Result = 0;
+    UINT8  *Dst = (UINT8 *)&Result;
+    UINT8  *Src = (UINT8 *)SrcPtr;
+
+    Dst[0] = Src[7];
+    Dst[1] = Src[6];
+    Dst[2] = Src[5];
+    Dst[3] = Src[4];
+    Dst[4] = Src[3];
+    Dst[5] = Src[2];
+    Dst[6] = Src[1];
+    Dst[7] = Src[0];
+
+    return Result;
+}
+#else
+UINT64 AcpiUtReadUint64 (void *SrcPtr) { return *(UINT16 *)SrcPtr; }
+#endif
+
+/*******************************************************************************
+ *
  * FUNCTION:    AcpiUtWriteUint
  *
  * PARAMETERS:  DstPtr		- where to place the retrieved value

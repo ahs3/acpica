@@ -1283,6 +1283,10 @@ UINT16
 AcpiUtReadUint16 (
     void                    *SrcPtr);
 
+UINT64
+AcpiUtReadUint64 (
+    void                    *SrcPtr);
+
 void  
 AcpiUtWriteUint (
     void                    *DstPtr,
