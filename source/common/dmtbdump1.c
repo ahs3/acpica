@@ -1018,9 +1018,10 @@ AcpiDmDumpFpdt (
 {
     ACPI_STATUS             Status;
     ACPI_FPDT_HEADER        *Subtable;
-    UINT32                  Length = Table->Length;
+    UINT32                  TableLength = AcpiUtReadUint32 (&Table->Length);
     UINT32                  Offset = sizeof (ACPI_TABLE_FPDT);
     ACPI_DMTABLE_INFO       *InfoTable;
+    UINT16                  SubtableType;
 
 
     /* There is no main table (other than the standard ACPI header) */
@@ -1028,19 +1029,20 @@ AcpiDmDumpFpdt (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_FPDT_HEADER, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < TableLength)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             Subtable->Length, AcpiDmTableInfoFpdtHdr);
         if (ACPI_FAILURE (Status))
         {
             return;
         }
 
-        switch (Subtable->Type)
+        SubtableType = AcpiUtReadUint16 (&Subtable->Type);
+        switch (SubtableType)
         {
         case ACPI_FPDT_TYPE_BOOT:
 
@@ -1067,7 +1069,7 @@ AcpiDmDumpFpdt (
             goto NextSubtable;
         }
 
-        Status = AcpiDmDumpTable (Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             Subtable->Length, InfoTable);
         if (ACPI_FAILURE (Status))
         {
