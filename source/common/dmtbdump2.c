@@ -1080,11 +1080,12 @@ AcpiDmDumpMsct (
     ACPI_STATUS             Status;
     UINT32                  Offset = sizeof (ACPI_TABLE_MSCT);
     ACPI_MSCT_PROXIMITY     *Subtable;
+    UINT32                  TableLength = AcpiUtReadUint32 (&Table->Length);
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Table->Length, 0, Table, 0, AcpiDmTableInfoMsct);
+    Status = AcpiDmDumpTable (TableLength, 0, Table, 0, AcpiDmTableInfoMsct);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -1093,12 +1094,12 @@ AcpiDmDumpMsct (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_MSCT_PROXIMITY, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < TableLength)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             sizeof (ACPI_MSCT_PROXIMITY), AcpiDmTableInfoMsct0);
         if (ACPI_FAILURE (Status))
         {
