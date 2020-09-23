@@ -1105,7 +1105,7 @@ AcpiDmDumpGtdt (
 {
     ACPI_STATUS             Status;
     ACPI_GTDT_HEADER        *Subtable;
-    UINT32                  Length = Table->Length;
+    UINT32                  Length = AcpiUtReadUint32 (&Table->Length);
     UINT32                  Offset = sizeof (ACPI_TABLE_GTDT);
     ACPI_DMTABLE_INFO       *InfoTable;
     UINT32                  SubtableLength;
@@ -1141,7 +1141,7 @@ AcpiDmDumpGtdt (
 
     /* Subtables */
 
-    while (Offset < Table->Length)
+    while (Offset < Length)
     {
         /* Common subtable header */
 
@@ -1159,8 +1159,13 @@ AcpiDmDumpGtdt (
         case ACPI_GTDT_TYPE_TIMER_BLOCK:
 
             SubtableLength = sizeof (ACPI_GTDT_TIMER_BLOCK);
-            GtCount = (ACPI_CAST_PTR (ACPI_GTDT_TIMER_BLOCK,
-                Subtable))->TimerCount;
+            {
+                UINT32 Tmp32;
+
+                Tmp32 = (ACPI_CAST_PTR (ACPI_GTDT_TIMER_BLOCK,
+                    Subtable))->TimerCount;
+                GtCount = AcpiUtReadUint32 (&Tmp32);
+            }
 
             InfoTable = AcpiDmTableInfoGtdt0;
             break;
