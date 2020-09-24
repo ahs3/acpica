@@ -600,6 +600,7 @@ DtCompileNfit (
     UINT32                  Count;
     ACPI_NFIT_INTERLEAVE    *Interleave = NULL;
     ACPI_NFIT_FLUSH_ADDRESS *Hint = NULL;
+    UINT16                  NfitHeaderType;
 
 
     /* Main table */
@@ -633,7 +634,8 @@ DtCompileNfit (
 
         NfitHeader = ACPI_CAST_PTR (ACPI_NFIT_HEADER, Subtable->Buffer);
 
-        switch (NfitHeader->Type)
+        NfitHeaderType = AcpiUtReadUint16 (&NfitHeader->Type);
+        switch (NfitHeaderType)
         {
         case ACPI_NFIT_TYPE_SYSTEM_ADDRESS:
 
@@ -693,7 +695,7 @@ DtCompileNfit (
         DtInsertSubtable (ParentTable, Subtable);
         DtPopSubtable ();
 
-        switch (NfitHeader->Type)
+        switch (NfitHeaderType)
         {
         case ACPI_NFIT_TYPE_INTERLEAVE:
 
@@ -719,7 +721,8 @@ DtCompileNfit (
                 Count++;
             }
 
-            Interleave->LineCount = Count;
+            AcpiUtWriteUint (&Interleave->LineCount, sizeof (UINT32),
+                &Count, sizeof (UINT32));
             break;
 
         case ACPI_NFIT_TYPE_SMBIOS:
@@ -765,6 +768,8 @@ DtCompileNfit (
             }
 
             Hint->HintCount = (UINT16) Count;
+            AcpiUtWriteUint (&Hint->HintCount, sizeof (UINT16),
+                &Count, sizeof (UINT32));
             break;
 
         default:
