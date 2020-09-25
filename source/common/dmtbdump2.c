@@ -1341,13 +1341,13 @@ AcpiDmDumpPcct (
     ACPI_STATUS             Status;
     ACPI_PCCT_SUBSPACE      *Subtable;
     ACPI_DMTABLE_INFO       *InfoTable;
-    UINT32                  Length = Table->Length;
+    UINT32                  TableLength = AcpiUtReadUint32 (&Table->Length);
     UINT32                  Offset = sizeof (ACPI_TABLE_PCCT);
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoPcct);
+    Status = AcpiDmDumpTable (TableLength, 0, Table, 0, AcpiDmTableInfoPcct);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -1356,12 +1356,12 @@ AcpiDmDumpPcct (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_PCCT_SUBSPACE, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < TableLength)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             Subtable->Header.Length, AcpiDmTableInfoPcctHdr);
         if (ACPI_FAILURE (Status))
         {
@@ -1404,7 +1404,7 @@ AcpiDmDumpPcct (
         }
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Length, Offset, Subtable,
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
             Subtable->Header.Length, InfoTable);
         if (ACPI_FAILURE (Status))
         {
