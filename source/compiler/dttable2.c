@@ -1136,6 +1136,7 @@ DtCompilePptt (
     ACPI_DMTABLE_INFO       *InfoTable;
     DT_FIELD                **PFieldList = (DT_FIELD **) List;
     DT_FIELD                *SubtableStart;
+    UINT32                  NumPrivRes;
 
 
     ParentTable = DtPeekSubtable ();
@@ -1200,7 +1201,7 @@ DtCompilePptt (
             {
                 /* Compile initiator proximity domain list */
 
-                PpttProcessor->NumberOfPrivResources = 0;
+                NumPrivRes = 0;
                 while (*PFieldList)
                 {
                     Status = DtCompileTable (PFieldList,
@@ -1216,8 +1217,10 @@ DtCompilePptt (
 
                     DtInsertSubtable (ParentTable, Subtable);
                     PpttHeader->Length += (UINT8)(Subtable->Length);
-                    PpttProcessor->NumberOfPrivResources++;
+                    NumPrivRes++;
                 }
+                PpttProcessor->NumberOfPrivResources =
+			AcpiUtReadUint32(&NumPrivRes);
             }
             break;
 
