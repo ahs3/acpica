@@ -1926,17 +1926,18 @@ AcpiDmDumpSdev (
     ACPI_SDEV_PCIE          *Pcie;
     ACPI_SDEV_NAMESPACE     *Namesp;
     ACPI_DMTABLE_INFO       *InfoTable;
-    UINT32                  Length = Table->Length;
+    UINT32                  TableLength = AcpiUtReadUint32 (&Table->Length);
     UINT32                  Offset = sizeof (ACPI_TABLE_SDEV);
     UINT16                  PathOffset;
     UINT16                  PathLength;
     UINT16                  VendorDataOffset;
     UINT16                  VendorDataLength;
+    UINT16                  SubtableLength;
 
 
     /* Main table */
 
-    Status = AcpiDmDumpTable (Length, 0, Table, 0, AcpiDmTableInfoSdev);
+    Status = AcpiDmDumpTable (TableLength, 0, Table, 0, AcpiDmTableInfoSdev);
     if (ACPI_FAILURE (Status))
     {
         return;
@@ -1945,13 +1946,14 @@ AcpiDmDumpSdev (
     /* Subtables */
 
     Subtable = ACPI_ADD_PTR (ACPI_SDEV_HEADER, Table, Offset);
-    while (Offset < Table->Length)
+    while (Offset < TableLength)
     {
         /* Common subtable header */
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
-            Subtable->Length, AcpiDmTableInfoSdevHdr);
+        SubtableLength = AcpiUtReadUint16 (&Subtable->Length);
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
+            SubtableLength, AcpiDmTableInfoSdevHdr);
         if (ACPI_FAILURE (Status))
         {
             return;
@@ -1974,8 +1976,8 @@ AcpiDmDumpSdev (
         }
 
         AcpiOsPrintf ("\n");
-        Status = AcpiDmDumpTable (Table->Length, Offset, Subtable,
-            Subtable->Length, InfoTable);
+        Status = AcpiDmDumpTable (TableLength, Offset, Subtable,
+            SubtableLength, InfoTable);
         if (ACPI_FAILURE (Status))
         {
             return;
@@ -1988,12 +1990,12 @@ AcpiDmDumpSdev (
             /* Dump the PCIe device ID(s) */
 
             Namesp = ACPI_CAST_PTR (ACPI_SDEV_NAMESPACE, Subtable);
-            PathOffset = Namesp->DeviceIdOffset;
-            PathLength = Namesp->DeviceIdLength;
+            PathOffset = AcpiUtReadUint16 (&Namesp->DeviceIdOffset);
+            PathLength = AcpiUtReadUint16 (&Namesp->DeviceIdLength);
 
             if (PathLength)
             {
-                Status = AcpiDmDumpTable (Table->Length, 0,
+                Status = AcpiDmDumpTable (TableLength, 0,
                     ACPI_ADD_PTR (UINT8, Namesp, PathOffset),
                     PathLength, AcpiDmTableInfoSdev0a);
                 if (ACPI_FAILURE (Status))
@@ -2004,14 +2006,14 @@ AcpiDmDumpSdev (
 
             /* Dump the vendor-specific data */
 
-            VendorDataLength =
-                Namesp->VendorDataLength;
-            VendorDataOffset =
-                Namesp->DeviceIdOffset + Namesp->DeviceIdLength;
+            VendorDataLength = AcpiUtReadUint16 (&Namesp->VendorDataLength);
+            VendorDataOffset = 
+                    AcpiUtReadUint16 (&Namesp->DeviceIdOffset) + 
+                    AcpiUtReadUint16 (&Namesp->DeviceIdLength);
 
             if (VendorDataLength)
             {
-                Status = AcpiDmDumpTable (Table->Length, 0,
+                Status = AcpiDmDumpTable (TableLength, 0,
                     ACPI_ADD_PTR (UINT8, Namesp, VendorDataOffset),
                     VendorDataLength, AcpiDmTableInfoSdev1b);
                 if (ACPI_FAILURE (Status))
@@ -2026,12 +2028,12 @@ AcpiDmDumpSdev (
             /* PCI path substructures */
 
             Pcie = ACPI_CAST_PTR (ACPI_SDEV_PCIE, Subtable);
-            PathOffset = Pcie->PathOffset;
-            PathLength = Pcie->PathLength;
+            PathOffset = AcpiUtReadUint16 (&Pcie->PathOffset);
+            PathLength = AcpiUtReadUint16 (&Pcie->PathLength);
 
             while (PathLength)
             {
-                Status = AcpiDmDumpTable (Table->Length,
+                Status = AcpiDmDumpTable (TableLength,
                     PathOffset + Offset,
                     ACPI_ADD_PTR (UINT8, Pcie, PathOffset),
                     sizeof (ACPI_SDEV_PCIE_PATH), AcpiDmTableInfoSdev1a);
@@ -2046,12 +2048,14 @@ AcpiDmDumpSdev (
 
             /* VendorData */
 
-            VendorDataLength = Pcie->VendorDataLength;
-            VendorDataOffset = Pcie->PathOffset + Pcie->PathLength;
+            VendorDataLength = AcpiUtReadUint16 (&Pcie->VendorDataLength);
+            VendorDataOffset = 
+                    AcpiUtReadUint16 (&Pcie->PathOffset) + 
+                    AcpiUtReadUint16 (&Pcie->PathLength);
 
             if (VendorDataLength)
             {
-                Status = AcpiDmDumpTable (Table->Length, 0,
+                Status = AcpiDmDumpTable (TableLength, 0,
                     ACPI_ADD_PTR (UINT8, Pcie, VendorDataOffset),
                     VendorDataLength, AcpiDmTableInfoSdev1b);
                 if (ACPI_FAILURE (Status))
@@ -2068,8 +2072,8 @@ AcpiDmDumpSdev (
 NextSubtable:
         /* Point to next subtable */
 
-        Offset += Subtable->Length;
+        Offset += SubtableLength;
         Subtable = ACPI_ADD_PTR (ACPI_SDEV_HEADER, Subtable,
-            Subtable->Length);
+            SubtableLength);
     }
 }
