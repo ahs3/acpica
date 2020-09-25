@@ -1403,6 +1403,8 @@ DtCompileHmat (
     UINT32                  TgtPDNumber;
     UINT64                  EntryNumber;
     UINT16                  SMBIOSHandleNumber;
+    UINT16                  HmatStructType;
+    UINT32                  Length;
 
 
     ParentTable = DtPeekSubtable ();
@@ -1433,7 +1435,8 @@ DtCompileHmat (
 
         /* Compile HMAT structure body */
 
-        switch (HmatStruct->Type)
+        HmatStructType = AcpiUtReadUint16 (&HmatStruct->Type);
+        switch (HmatStructType)
         {
         case ACPI_HMAT_TYPE_ADDRESS_RANGE:
 
@@ -1466,7 +1469,7 @@ DtCompileHmat (
 
         /* Compile HMAT structure additionals */
 
-        switch (HmatStruct->Type)
+        switch (HmatStructType)
         {
         case ACPI_HMAT_TYPE_LOCALITY:
 
@@ -1492,7 +1495,7 @@ DtCompileHmat (
                 HmatStruct->Length += Subtable->Length;
                 IntPDNumber++;
             }
-            HmatLocality->NumberOfInitiatorPDs = IntPDNumber;
+            HmatLocality->NumberOfInitiatorPDs = AcpiUtReadUint32 (&IntPDNumber);
 
             /* Compile target proximity domain list */
 
@@ -1513,7 +1516,7 @@ DtCompileHmat (
                 HmatStruct->Length += Subtable->Length;
                 TgtPDNumber++;
             }
-            HmatLocality->NumberOfTargetPDs = TgtPDNumber;
+            HmatLocality->NumberOfTargetPDs = AcpiUtReadUint32 (&TgtPDNumber);
 
             /* Save start of the entries for reporting errors */
 
@@ -1538,6 +1541,9 @@ DtCompileHmat (
                 HmatStruct->Length += Subtable->Length;
                 EntryNumber++;
             }
+        
+            Length = AcpiUtReadUint32 (&HmatStruct->Length);
+            HmatStruct->Length = Length;
 
             /* Validate number of entries */
 
@@ -1572,10 +1578,18 @@ DtCompileHmat (
                 HmatStruct->Length += Subtable->Length;
                 SMBIOSHandleNumber++;
             }
-            HmatCache->NumberOfSMBIOSHandles = SMBIOSHandleNumber;
+            HmatCache->NumberOfSMBIOSHandles = 
+                    AcpiUtReadUint16 (&SMBIOSHandleNumber);
+
+            Length = AcpiUtReadUint32 (&HmatStruct->Length);
+            HmatStruct->Length = Length;
+
             break;
 
         default:
+
+        Length = AcpiUtReadUint32(&HmatStruct->Length);
+        HmatStruct->Length = Length;
 
             break;
         }
