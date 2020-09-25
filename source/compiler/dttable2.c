@@ -1376,6 +1376,7 @@ DtCompileSdev (
     ACPI_SDEV_PCIE          *Pcie = NULL;
     ACPI_SDEV_NAMESPACE     *Namesp = NULL;
     UINT32                  EntryCount;
+    UINT16                  Tmp16;
 
 
     /* Subtables */
@@ -1397,7 +1398,7 @@ DtCompileSdev (
         DtPushSubtable (Subtable);
 
         SdevHeader = ACPI_CAST_PTR (ACPI_SDEV_HEADER, Subtable->Buffer);
-        SdevHeader->Length = (UINT8)(sizeof (ACPI_SDEV_HEADER));
+        SdevHeader->Length = (UINT16) (sizeof (ACPI_SDEV_HEADER));
 
         switch (SdevHeader->Type)
         {
@@ -1453,7 +1454,7 @@ DtCompileSdev (
             ParentTable = DtPeekSubtable ();
             DtInsertSubtable (ParentTable, Subtable);
 
-            Namesp->DeviceIdOffset = sizeof (ACPI_SDEV_NAMESPACE);
+            Namesp->DeviceIdOffset = (UINT16) sizeof (ACPI_SDEV_NAMESPACE);
             Namesp->DeviceIdLength = (UINT16) Subtable->Length;
 
             /* Append Vendor data */
@@ -1475,17 +1476,31 @@ DtCompileSdev (
                     ParentTable = DtPeekSubtable ();
                     DtInsertSubtable (ParentTable, Subtable);
 
-                    Namesp->VendorDataOffset =
-                        Namesp->DeviceIdOffset + Namesp->DeviceIdLength;
-                    Namesp->VendorDataLength =
-                        (UINT16) Subtable->Length;
+                    Namesp->VendorDataOffset = 
+			    Namesp->DeviceIdOffset + 
+			    Namesp->DeviceIdLength;
+                    Namesp->VendorDataLength = (UINT16) Subtable->Length;
 
                     /* Final size of entire namespace structure */
 
-                    SdevHeader->Length = (UINT16)(sizeof(ACPI_SDEV_NAMESPACE) +
-                        Subtable->Length + Namesp->DeviceIdLength);
+		    SdevHeader->Length = (UINT16)
+			    (sizeof(ACPI_SDEV_NAMESPACE) +
+                             Subtable->Length +
+			     Namesp->DeviceIdLength);
                 }
             }
+
+	    /* Make sure everything is now little-endian */
+	    Tmp16 = AcpiUtReadUint16(&SdevHeader->Length);
+	    SdevHeader->Length = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Namesp->DeviceIdOffset);
+	    Namesp->DeviceIdOffset = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Namesp->DeviceIdLength);
+	    Namesp->DeviceIdLength = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Namesp->VendorDataOffset);
+	    Namesp->VendorDataOffset = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Namesp->VendorDataLength);
+	    Namesp->VendorDataLength = Tmp16;
 
             break;
 
@@ -1516,9 +1531,9 @@ DtCompileSdev (
 
             /* Path offset will point immediately after the main subtable */
 
-            Pcie->PathOffset = sizeof (ACPI_SDEV_PCIE);
+	    Pcie->PathOffset = sizeof (ACPI_SDEV_PCIE);
             Pcie->PathLength = (UINT16)
-                (EntryCount * sizeof (ACPI_SDEV_PCIE_PATH));
+		    (EntryCount * sizeof (ACPI_SDEV_PCIE_PATH));
 
             /* Append the Vendor Data last */
 
@@ -1540,15 +1555,24 @@ DtCompileSdev (
                     DtInsertSubtable (ParentTable, Subtable);
 
                     Pcie->VendorDataOffset =
-                        Pcie->PathOffset + Pcie->PathLength;
-                    Pcie->VendorDataLength = (UINT16)
-                        Subtable->Length;
+			    Pcie->PathOffset + Pcie->PathLength;
+                    Pcie->VendorDataLength = (UINT16) Subtable->Length;
                 }
             }
 
             SdevHeader->Length =
-                sizeof (ACPI_SDEV_PCIE) +
+		sizeof (ACPI_SDEV_PCIE) +
                 Pcie->PathLength + Pcie->VendorDataLength;
+	    Tmp16 = AcpiUtReadUint16(&SdevHeader->Length);
+	    SdevHeader->Length = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Pcie->PathOffset);
+	    Pcie->PathOffset = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Pcie->PathLength);
+	    Pcie->PathLength = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Pcie->VendorDataOffset);
+	    Pcie->VendorDataOffset = Tmp16;
+	    Tmp16 = AcpiUtReadUint16(&Pcie->VendorDataLength);
+	    Pcie->VendorDataLength = Tmp16;
             break;
 
         default:
