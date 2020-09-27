@@ -1855,6 +1855,7 @@ DtCompileTcpa (
     ACPI_TABLE_TCPA_HDR     *TcpaHeader;
     DT_SUBTABLE             *ParentTable;
     ACPI_STATUS             Status;
+    UINT16                  PlatformClass;
 
 
     /* Compile the main table */
@@ -1875,7 +1876,8 @@ DtCompileTcpa (
      */
     TcpaHeader = ACPI_CAST_PTR (ACPI_TABLE_TCPA_HDR, ParentTable->Buffer);
 
-    switch (TcpaHeader->PlatformClass)
+    PlatformClass = AcpiUtReadUint16 (&TcpaHeader->PlatformClass);
+    switch (PlatformClass)
     {
     case ACPI_TCPA_CLIENT_TABLE:
 
