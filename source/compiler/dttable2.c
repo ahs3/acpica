@@ -968,6 +968,7 @@ DtCompilePmtt (
     ACPI_PMTT_HEADER        *PmttHeader;
     ACPI_PMTT_CONTROLLER    *PmttController;
     UINT16                  DomainCount;
+    UINT16                  Length;
     UINT8                   PrevType = ACPI_PMTT_TYPE_SOCKET;
 
 
@@ -1012,6 +1013,8 @@ DtCompilePmtt (
         DtInsertSubtable (ParentTable, Subtable);
         DtPushSubtable (Subtable);
 
+        Length = AcpiUtReadUint16 (&PmttHeader->Length);
+        PmttHeader->Length = Length;
         switch (PmttHeader->Type)
         {
         case ACPI_PMTT_TYPE_SOCKET:
@@ -1045,7 +1048,7 @@ DtCompilePmtt (
 
             PmttController = ACPI_CAST_PTR (ACPI_PMTT_CONTROLLER,
                 (Subtable->Buffer - sizeof (ACPI_PMTT_HEADER)));
-            DomainCount = PmttController->DomainCount;
+            DomainCount = AcpiUtReadUint16 (&PmttController->DomainCount);
 
             while (DomainCount)
             {
