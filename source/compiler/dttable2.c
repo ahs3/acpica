@@ -2012,6 +2012,7 @@ DtCompileTpm2 (
     DT_SUBTABLE             *ParentTable;
     ACPI_STATUS             Status = AE_OK;
     ACPI_TABLE_HEADER       *Header;
+    UINT8                   StartMethod;
 
 
     ParentTable = DtPeekSubtable ();
@@ -2055,7 +2056,8 @@ DtCompileTpm2 (
 
     /* Subtable type depends on the StartMethod */
 
-    switch (Tpm2Header->StartMethod)
+    StartMethod = *(UINT8 *)&Tpm2Header->StartMethod;
+    switch (StartMethod)
     {
     case ACPI_TPM2_COMMAND_BUFFER_WITH_ARM_SMC:
 
@@ -2086,7 +2088,7 @@ DtCompileTpm2 (
     case ACPI_TPM2_RESERVED10:
 
         AcpiOsPrintf ("\n**** Reserved TPM2 Start Method type 0x%X\n",
-            Tpm2Header->StartMethod);
+            StartMethod);
         Status = AE_ERROR;
         break;
 
@@ -2094,7 +2096,7 @@ DtCompileTpm2 (
     default:
 
         AcpiOsPrintf ("\n**** Unknown TPM2 Start Method type 0x%X\n",
-            Tpm2Header->StartMethod);
+            StartMethod);
         Status = AE_ERROR;
         break;
     }
