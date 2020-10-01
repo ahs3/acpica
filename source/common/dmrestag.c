@@ -1146,7 +1146,7 @@ AcpiDmAddResourcesToNamespace (
      * NextOp contains the Aml pointer and the Aml length
      */
     AcpiUtWalkAmlResources (NULL, (UINT8 *) NextOp->Named.Data,
-        (ACPI_SIZE) NextOp->Common.Value.Integer,
+        (ACPI_SIZE) NextOp->Common.Value.Size,
         AcpiDmAddResourceToNamespace, (void **) BufferNode);
 }
 

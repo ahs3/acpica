@@ -451,6 +451,7 @@ RsDoGpioIntDescriptor (
     UINT32                  CurrentByteOffset;
     UINT32                  PinCount = 0;
     UINT32                  i;
+    UINT16                  Tmp16;
 
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
@@ -593,7 +594,8 @@ RsDoGpioIntDescriptor (
              *  (implies resource source must immediately follow the pin list.)
              *  Name: _PIN
              */
-            *InterruptList = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            *InterruptList = AcpiUtReadUint16 (&Tmp16);
             InterruptList++;
             PinCount++;
 
@@ -626,6 +628,27 @@ RsDoGpioIntDescriptor (
 
     MpSaveGpioInfo (Info->MappingOp, Descriptor,
         PinCount, PinList, ResourceSource);
+
+    /* correct endian-ness issues */
+    Tmp16 = Descriptor->Gpio.ResourceLength;
+    Descriptor->Gpio.ResourceLength = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.Flags;
+    Descriptor->Gpio.Flags = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.IntFlags;
+    Descriptor->Gpio.IntFlags = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.DriveStrength;
+    Descriptor->Gpio.DriveStrength = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.DebounceTimeout;
+    Descriptor->Gpio.DebounceTimeout = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.PinTableOffset;
+    Descriptor->Gpio.PinTableOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.ResSourceOffset;
+    Descriptor->Gpio.ResSourceOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.VendorOffset;
+    Descriptor->Gpio.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.VendorLength;
+    Descriptor->Gpio.VendorLength = AcpiUtReadUint16 (&Tmp16);
+
     return (Rnode);
 }
 
@@ -660,6 +683,7 @@ RsDoGpioIoDescriptor (
     UINT32                  CurrentByteOffset;
     UINT32                  PinCount = 0;
     UINT32                  i;
+    UINT16                  Tmp16;
 
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
@@ -799,7 +823,8 @@ RsDoGpioIoDescriptor (
              *  (implies resource source must immediately follow the pin list.)
              *  Name: _PIN
              */
-            *InterruptList = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            *InterruptList = AcpiUtReadUint16 (&Tmp16);
             InterruptList++;
             PinCount++;
 
@@ -832,6 +857,27 @@ RsDoGpioIoDescriptor (
 
     MpSaveGpioInfo (Info->MappingOp, Descriptor,
         PinCount, PinList, ResourceSource);
+
+    /* correct endian-ness issues */
+    Tmp16 = Descriptor->Gpio.ResourceLength;
+    Descriptor->Gpio.ResourceLength = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.Flags;
+    Descriptor->Gpio.Flags = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.IntFlags;
+    Descriptor->Gpio.IntFlags = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.DriveStrength;
+    Descriptor->Gpio.DriveStrength = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.DebounceTimeout;
+    Descriptor->Gpio.DebounceTimeout = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.PinTableOffset;
+    Descriptor->Gpio.PinTableOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.ResSourceOffset;
+    Descriptor->Gpio.ResSourceOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.VendorOffset;
+    Descriptor->Gpio.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->Gpio.VendorLength;
+    Descriptor->Gpio.VendorLength = AcpiUtReadUint16 (&Tmp16);
+
     return (Rnode);
 }
 
@@ -862,6 +908,8 @@ RsDoI2cSerialBusDescriptor (
     UINT16                  DescriptorSize;
     UINT32                  CurrentByteOffset;
     UINT32                  i;
+    UINT16                  Tmp16;
+    UINT32                  Tmp32;
 
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
@@ -889,7 +937,8 @@ RsDoI2cSerialBusDescriptor (
     Descriptor->I2cSerialBus.RevisionId = AML_RESOURCE_I2C_REVISION;
     Descriptor->I2cSerialBus.TypeRevisionId = AML_RESOURCE_I2C_TYPE_REVISION;
     Descriptor->I2cSerialBus.Type = AML_RESOURCE_I2C_SERIALBUSTYPE;
-    Descriptor->I2cSerialBus.TypeDataLength = AML_RESOURCE_I2C_MIN_DATA_LEN + VendorLength;
+    Tmp16 = AML_RESOURCE_I2C_MIN_DATA_LEN + VendorLength;
+    Descriptor->I2cSerialBus.TypeDataLength = AcpiUtReadUint16 (&Tmp16);
 
     if (Info->DescriptorTypeOp->Asl.ParseOpcode == PARSEOP_I2C_SERIALBUS_V2)
     {
@@ -903,13 +952,15 @@ RsDoI2cSerialBusDescriptor (
 
     /* Process all child initialization nodes */
 
+    Descriptor->I2cSerialBus.TypeSpecificFlags = 0;
     for (i = 0; InitializerOp; i++)
     {
         switch (i)
         {
         case 0: /* Slave Address [WORD] (_ADR) */
 
-            Descriptor->I2cSerialBus.SlaveAddress = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            Descriptor->I2cSerialBus.SlaveAddress = AcpiUtReadUint16 (&Tmp16);
             RsCreateWordField (InitializerOp, ACPI_RESTAG_ADDRESS,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (I2cSerialBus.SlaveAddress));
             break;
@@ -923,16 +974,19 @@ RsDoI2cSerialBusDescriptor (
 
         case 2: /* Connection Speed [DWORD] (_SPE) */
 
-            Descriptor->I2cSerialBus.ConnectionSpeed = (UINT32) InitializerOp->Asl.Value.Integer;
+            Tmp32 = (UINT32) InitializerOp->Asl.Value.Integer;
+            Descriptor->I2cSerialBus.ConnectionSpeed = AcpiUtReadUint32 (&Tmp32);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_SPEED,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (I2cSerialBus.ConnectionSpeed));
             break;
 
         case 3: /* Addressing Mode [Flag] (_MOD) */
 
-            RsSetFlagBits16 (&Descriptor->I2cSerialBus.TypeSpecificFlags, InitializerOp, 0, 0);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->I2cSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 0, 0);
             RsCreateBitField (InitializerOp, ACPI_RESTAG_MODE,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (I2cSerialBus.TypeSpecificFlags), 0);
+            Descriptor->I2cSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);
             break;
 
         case 4: /* ResSource [Optional Field - STRING] */
@@ -990,6 +1044,8 @@ RsDoI2cSerialBusDescriptor (
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
+    Tmp16 = Descriptor->I2cSerialBus.ResourceLength;
+    Descriptor->I2cSerialBus.ResourceLength = AcpiUtReadUint16 (&Tmp16);
     MpSaveSerialInfo (Info->MappingOp, Descriptor, ResourceSource);
     return (Rnode);
 }
@@ -1021,6 +1077,8 @@ RsDoSpiSerialBusDescriptor (
     UINT16                  DescriptorSize;
     UINT32                  CurrentByteOffset;
     UINT32                  i;
+    UINT16                  Tmp16;
+    UINT32                  Tmp32;
 
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
@@ -1043,12 +1101,13 @@ RsDoSpiSerialBusDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->SpiSerialBus.ResourceLength = DescriptorSize;
+    Descriptor->SpiSerialBus.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->SpiSerialBus.DescriptorType = ACPI_RESOURCE_NAME_SERIAL_BUS;
     Descriptor->SpiSerialBus.RevisionId = AML_RESOURCE_SPI_REVISION;
     Descriptor->SpiSerialBus.TypeRevisionId = AML_RESOURCE_SPI_TYPE_REVISION;
     Descriptor->SpiSerialBus.Type = AML_RESOURCE_SPI_SERIALBUSTYPE;
-    Descriptor->SpiSerialBus.TypeDataLength = AML_RESOURCE_SPI_MIN_DATA_LEN + VendorLength;
+    Tmp16 = AML_RESOURCE_SPI_MIN_DATA_LEN + VendorLength;
+    Descriptor->SpiSerialBus.TypeDataLength = AcpiUtReadUint16 (&Tmp16);
 
     if (Info->DescriptorTypeOp->Asl.ParseOpcode == PARSEOP_SPI_SERIALBUS_V2)
     {
@@ -1063,29 +1122,35 @@ RsDoSpiSerialBusDescriptor (
 
     /* Process all child initialization nodes */
 
+    Descriptor->SpiSerialBus.TypeSpecificFlags = 0;
     for (i = 0; InitializerOp; i++)
     {
         switch (i)
         {
         case 0: /* Device Selection [WORD] (_ADR) */
 
-            Descriptor->SpiSerialBus.DeviceSelection = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            Descriptor->SpiSerialBus.DeviceSelection = AcpiUtReadUint16 (&Tmp16);
             RsCreateWordField (InitializerOp, ACPI_RESTAG_ADDRESS,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (SpiSerialBus.DeviceSelection));
             break;
 
         case 1: /* Device Polarity [Flag] (_DPL) */
 
-            RsSetFlagBits16 (&Descriptor->SpiSerialBus.TypeSpecificFlags, InitializerOp, 1, 0);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->SpiSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 1, 0);
             RsCreateBitField (InitializerOp, ACPI_RESTAG_DEVICEPOLARITY,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (SpiSerialBus.TypeSpecificFlags), 1);
+            Descriptor->SpiSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);
             break;
 
         case 2: /* Wire Mode [Flag] (_MOD) */
 
-            RsSetFlagBits16 (&Descriptor->SpiSerialBus.TypeSpecificFlags, InitializerOp, 0, 0);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->SpiSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 0, 0);
             RsCreateBitField (InitializerOp, ACPI_RESTAG_MODE,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (SpiSerialBus.TypeSpecificFlags), 0);
+            Descriptor->SpiSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);
             break;
 
         case 3: /* Device Bit Length [BYTE] (_LEN) */
@@ -1104,7 +1169,8 @@ RsDoSpiSerialBusDescriptor (
 
         case 5: /* Connection Speed [DWORD] (_SPE) */
 
-            Descriptor->SpiSerialBus.ConnectionSpeed = (UINT32) InitializerOp->Asl.Value.Integer;
+            Tmp32 = (UINT32) InitializerOp->Asl.Value.Integer;
+            Descriptor->SpiSerialBus.ConnectionSpeed = AcpiUtReadUint32 (&Tmp32);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_SPEED,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (SpiSerialBus.ConnectionSpeed));
             break;
@@ -1209,6 +1275,8 @@ RsDoUartSerialBusDescriptor (
     UINT16                  DescriptorSize;
     UINT32                  CurrentByteOffset;
     UINT32                  i;
+    UINT16                  Tmp16;
+    UINT32                  Tmp32;
 
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
@@ -1231,12 +1299,13 @@ RsDoUartSerialBusDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->UartSerialBus.ResourceLength = DescriptorSize;
+    Descriptor->UartSerialBus.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->UartSerialBus.DescriptorType = ACPI_RESOURCE_NAME_SERIAL_BUS;
     Descriptor->UartSerialBus.RevisionId = AML_RESOURCE_UART_REVISION;
     Descriptor->UartSerialBus.TypeRevisionId = AML_RESOURCE_UART_TYPE_REVISION;
     Descriptor->UartSerialBus.Type = AML_RESOURCE_UART_SERIALBUSTYPE;
-    Descriptor->UartSerialBus.TypeDataLength = AML_RESOURCE_UART_MIN_DATA_LEN + VendorLength;
+    Tmp16 = AML_RESOURCE_UART_MIN_DATA_LEN + VendorLength;
+    Descriptor->UartSerialBus.TypeDataLength = AcpiUtReadUint16 (&Tmp16);
 
     if (Info->DescriptorTypeOp->Asl.ParseOpcode == PARSEOP_UART_SERIALBUS_V2)
     {
@@ -1250,29 +1319,35 @@ RsDoUartSerialBusDescriptor (
 
     /* Process all child initialization nodes */
 
+    Descriptor->UartSerialBus.TypeSpecificFlags = 0;
     for (i = 0; InitializerOp; i++)
     {
         switch (i)
         {
         case 0: /* Connection Speed (Baud Rate) [DWORD] (_SPE) */
 
-            Descriptor->UartSerialBus.DefaultBaudRate = (UINT32) InitializerOp->Asl.Value.Integer;
+            Tmp32 = (UINT32) InitializerOp->Asl.Value.Integer;
+            Descriptor->UartSerialBus.DefaultBaudRate = AcpiUtReadUint32 (&Tmp32);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_SPEED,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.DefaultBaudRate));
             break;
 
         case 1: /* Bits Per Byte [Flags] (_LEN) */
 
-            RsSetFlagBits16 (&Descriptor->UartSerialBus.TypeSpecificFlags, InitializerOp, 4, 3);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->UartSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 4, 3);
             RsCreateMultiBitField (InitializerOp, ACPI_RESTAG_LENGTH,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.TypeSpecificFlags), 4, 3);
+            Descriptor->UartSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);;
             break;
 
         case 2: /* Stop Bits [Flags] (_STB) */
 
-            RsSetFlagBits16 (&Descriptor->UartSerialBus.TypeSpecificFlags, InitializerOp, 2, 1);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->UartSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 2, 1);
             RsCreateMultiBitField (InitializerOp, ACPI_RESTAG_STOPBITS,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.TypeSpecificFlags), 2, 2);
+            Descriptor->UartSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);;
             break;
 
         case 3: /* Lines In Use [BYTE] (_LIN) */
@@ -1284,9 +1359,11 @@ RsDoUartSerialBusDescriptor (
 
         case 4: /* Endianness [Flag] (_END) */
 
-            RsSetFlagBits16 (&Descriptor->UartSerialBus.TypeSpecificFlags, InitializerOp, 7, 0);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->UartSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 7, 0);
             RsCreateBitField (InitializerOp, ACPI_RESTAG_ENDIANNESS,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.TypeSpecificFlags), 7);
+            Descriptor->UartSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);;
             break;
 
         case 5: /* Parity [BYTE] (_PAR) */
@@ -1298,21 +1375,25 @@ RsDoUartSerialBusDescriptor (
 
         case 6: /* Flow Control [Flags] (_FLC) */
 
-            RsSetFlagBits16 (&Descriptor->UartSerialBus.TypeSpecificFlags, InitializerOp, 0, 0);
+            Tmp16 = AcpiUtReadUint16 (&Descriptor->UartSerialBus.TypeSpecificFlags);
+            RsSetFlagBits16 (&Tmp16, InitializerOp, 0, 0);
             RsCreateMultiBitField (InitializerOp, ACPI_RESTAG_FLOWCONTROL,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.TypeSpecificFlags), 0, 2);
+            Descriptor->UartSerialBus.TypeSpecificFlags = AcpiUtReadUint16 (&Tmp16);;
             break;
 
         case 7: /* Rx Buffer Size [WORD] (_RXL) */
 
-            Descriptor->UartSerialBus.RxFifoSize = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            Descriptor->UartSerialBus.RxFifoSize = AcpiUtReadUint16 (&Tmp16);
             RsCreateWordField (InitializerOp, ACPI_RESTAG_LENGTH_RX,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.RxFifoSize));
             break;
 
         case 8: /* Tx Buffer Size [WORD] (_TXL) */
 
-            Descriptor->UartSerialBus.TxFifoSize = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            Descriptor->UartSerialBus.TxFifoSize = AcpiUtReadUint16 (&Tmp16);
             RsCreateWordField (InitializerOp, ACPI_RESTAG_LENGTH_TX,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (UartSerialBus.TxFifoSize));
             break;
@@ -1416,6 +1497,7 @@ RsDoPinFunctionDescriptor (
     UINT32                  CurrentByteOffset;
     UINT32                  PinCount = 0;
     UINT32                  i;
+    UINT16                  Tmp16;
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
     CurrentByteOffset = Info->CurrentByteOffset;
@@ -1439,7 +1521,7 @@ RsDoPinFunctionDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->PinFunction.ResourceLength = DescriptorSize;
+    Descriptor->PinFunction.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->PinFunction.DescriptorType = ACPI_RESOURCE_NAME_PIN_FUNCTION;
     Descriptor->PinFunction.RevisionId = AML_RESOURCE_PIN_FUNCTION_REVISION;
 
@@ -1479,7 +1561,8 @@ RsDoPinFunctionDescriptor (
 
         case 2: /* Function Number [WORD] (_FUN) */
 
-            Descriptor->PinFunction.FunctionNumber = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            Descriptor->PinFunction.FunctionNumber = AcpiUtReadUint16 (&Tmp16);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_FUNCTION,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (PinFunction.FunctionNumber));
             break;
@@ -1527,6 +1610,12 @@ RsDoPinFunctionDescriptor (
             {
                 Descriptor->PinFunction.VendorLength = VendorLength;
             }
+            Tmp16 = (UINT16) ACPI_PTR_DIFF (VendorData, Descriptor);
+            Descriptor->PinFunction.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+            
+            Tmp16 = Descriptor->PinFunction.VendorLength;
+            Descriptor->PinFunction.VendorLength = AcpiUtReadUint16 (&Tmp16);
+
             break;
 
         default:
@@ -1538,7 +1627,8 @@ RsDoPinFunctionDescriptor (
              *  (implies resource source must immediately follow the pin list.)
              *  Name: _PIN
              */
-            *PinList = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            *PinList = AcpiUtReadUint16 (&Tmp16);
             PinList++;
             PinCount++;
 
@@ -1568,6 +1658,13 @@ RsDoPinFunctionDescriptor (
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
+
+    /* correct the endian-ness of the values */
+    Tmp16 = Descriptor->PinFunction.PinTableOffset;
+    Descriptor->PinFunction.PinTableOffset = AcpiUtReadUint16 (&Tmp16);
+
+    Tmp16 = Descriptor->PinFunction.ResSourceOffset;
+    Descriptor->PinFunction.ResSourceOffset = AcpiUtReadUint16 (&Tmp16);
 
     return (Rnode);
 }
@@ -1602,6 +1699,8 @@ RsDoPinConfigDescriptor (
     UINT32                  CurrentByteOffset;
     UINT32                  PinCount = 0;
     UINT32                  i;
+    UINT16                  Tmp16;
+    UINT32                  Tmp32;
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
     CurrentByteOffset = Info->CurrentByteOffset;
@@ -1625,7 +1724,7 @@ RsDoPinConfigDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->PinConfig.ResourceLength = DescriptorSize;
+    Descriptor->PinConfig.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->PinConfig.DescriptorType = ACPI_RESOURCE_NAME_PIN_CONFIG;
     Descriptor->PinConfig.RevisionId = AML_RESOURCE_PIN_CONFIG_REVISION;
 
@@ -1679,7 +1778,8 @@ RsDoPinConfigDescriptor (
 
         case 2: /* Pin Config Value [DWORD] (_VAL) */
 
-            Descriptor->PinConfig.PinConfigValue = (UINT32) InitializerOp->Asl.Value.Integer;
+            Tmp32 = (UINT32) InitializerOp->Asl.Value.Integer;
+            Descriptor->PinConfig.PinConfigValue = AcpiUtReadUint32 (&Tmp32);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_PINCONFIG_VALUE,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (PinConfig.PinConfigValue));
             break;
@@ -1738,7 +1838,8 @@ RsDoPinConfigDescriptor (
              *  (implies resource source must immediately follow the pin list.)
              *  Name: _PIN
              */
-            *PinList = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            *PinList = AcpiUtReadUint16 (&Tmp16);
             PinList++;
             PinCount++;
 
@@ -1768,6 +1869,16 @@ RsDoPinConfigDescriptor (
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
+
+    /* correct the endianness if needed */
+    Tmp16 = Descriptor->PinConfig.PinTableOffset;
+    Descriptor->PinConfig.PinTableOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinConfig.ResSourceOffset;
+    Descriptor->PinConfig.ResSourceOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinConfig.VendorOffset;
+    Descriptor->PinConfig.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinConfig.VendorLength;
+    Descriptor->PinConfig.VendorLength = AcpiUtReadUint16 (&Tmp16);
 
     return (Rnode);
 }
@@ -1802,6 +1913,7 @@ RsDoPinGroupDescriptor (
     UINT32                  CurrentByteOffset;
     UINT32                  PinCount = 0;
     UINT32                  i;
+    UINT16                  Tmp16;
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
     CurrentByteOffset = Info->CurrentByteOffset;
@@ -1825,7 +1937,7 @@ RsDoPinGroupDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->PinGroup.ResourceLength = DescriptorSize;
+    Descriptor->PinGroup.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->PinGroup.DescriptorType = ACPI_RESOURCE_NAME_PIN_GROUP;
     Descriptor->PinGroup.RevisionId = AML_RESOURCE_PIN_GROUP_REVISION;
 
@@ -1892,7 +2004,8 @@ RsDoPinGroupDescriptor (
              *  (implies resource source must immediately follow the pin list.)
              *  Name: _PIN
              */
-            *PinList = (UINT16) InitializerOp->Asl.Value.Integer;
+        Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            *PinList = AcpiUtReadUint16 (&Tmp16);
             PinList++;
             PinCount++;
 
@@ -1922,6 +2035,16 @@ RsDoPinGroupDescriptor (
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
+
+    /* correct enddianness as needed */
+    Tmp16 = Descriptor->PinGroup.PinTableOffset;
+    Descriptor->PinGroup.PinTableOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroup.LabelOffset;
+    Descriptor->PinGroup.LabelOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroup.VendorOffset;
+    Descriptor->PinGroup.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroup.VendorLength;
+    Descriptor->PinGroup.VendorLength = AcpiUtReadUint16 (&Tmp16);
 
     return (Rnode);
 }
@@ -1955,6 +2078,7 @@ RsDoPinGroupFunctionDescriptor (
     UINT16                  DescriptorSize;
     UINT32                  CurrentByteOffset;
     UINT32                  i;
+    UINT16                  Tmp16;
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
     CurrentByteOffset = Info->CurrentByteOffset;
@@ -1978,7 +2102,7 @@ RsDoPinGroupFunctionDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->PinGroupFunction.ResourceLength = DescriptorSize;
+    Descriptor->PinGroupFunction.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->PinGroupFunction.DescriptorType = ACPI_RESOURCE_NAME_PIN_GROUP_FUNCTION;
     Descriptor->PinGroupFunction.RevisionId = AML_RESOURCE_PIN_GROUP_FUNCTION_REVISION;
 
@@ -2010,7 +2134,8 @@ RsDoPinGroupFunctionDescriptor (
 
         case 1: /* Function Number [WORD] */
 
-            Descriptor->PinGroupFunction.FunctionNumber = (UINT16) InitializerOp->Asl.Value.Integer;
+            Tmp16 = (UINT16) InitializerOp->Asl.Value.Integer;
+            Descriptor->PinGroupFunction.FunctionNumber = AcpiUtReadUint16 (&Tmp16);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_FUNCTION,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (PinGroupFunction.FunctionNumber));
             break;
@@ -2069,6 +2194,16 @@ RsDoPinGroupFunctionDescriptor (
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
 
+    /* correct enddianness as needed */
+    Tmp16 = Descriptor->PinGroupFunction.ResSourceOffset;
+    Descriptor->PinGroupFunction.ResSourceOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroupFunction.ResSourceLabelOffset;
+    Descriptor->PinGroupFunction.ResSourceLabelOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroupFunction.VendorOffset;
+    Descriptor->PinGroupFunction.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroupFunction.VendorLength;
+    Descriptor->PinGroupFunction.VendorLength = AcpiUtReadUint16 (&Tmp16);
+
     return (Rnode);
 }
 
@@ -2101,6 +2236,8 @@ RsDoPinGroupConfigDescriptor (
     UINT16                  DescriptorSize;
     UINT32                  CurrentByteOffset;
     UINT32                  i;
+    UINT16                  Tmp16;
+    UINT32                  Tmp32;
 
     InitializerOp = Info->DescriptorTypeOp->Asl.Child;
     CurrentByteOffset = Info->CurrentByteOffset;
@@ -2124,7 +2261,7 @@ RsDoPinGroupConfigDescriptor (
         sizeof (AML_RESOURCE_LARGE_HEADER));
 
     Descriptor = Rnode->Buffer;
-    Descriptor->PinGroupConfig.ResourceLength = DescriptorSize;
+    Descriptor->PinGroupConfig.ResourceLength = AcpiUtReadUint16 (&DescriptorSize);
     Descriptor->PinGroupConfig.DescriptorType = ACPI_RESOURCE_NAME_PIN_GROUP_CONFIG;
     Descriptor->PinGroupConfig.RevisionId = AML_RESOURCE_PIN_GROUP_CONFIG_REVISION;
 
@@ -2177,7 +2314,8 @@ RsDoPinGroupConfigDescriptor (
 
         case 2: /* Pin Config Value [DWORD] (_VAL) */
 
-            Descriptor->PinGroupConfig.PinConfigValue = (UINT32) InitializerOp->Asl.Value.Integer;
+            Tmp32 = (UINT32) InitializerOp->Asl.Value.Integer;
+            Descriptor->PinGroupConfig.PinConfigValue = AcpiUtReadUint32 (&Tmp32);
             RsCreateDwordField (InitializerOp, ACPI_RESTAG_PINCONFIG_VALUE,
                 CurrentByteOffset + ASL_RESDESC_OFFSET (PinGroupConfig.PinConfigValue));
             break;
@@ -2237,6 +2375,16 @@ RsDoPinGroupConfigDescriptor (
 
         InitializerOp = RsCompleteNodeAndGetNext (InitializerOp);
     }
+
+    /* correct enddianness as needed */
+    Tmp16 = Descriptor->PinGroupConfig.ResSourceOffset;
+    Descriptor->PinGroupConfig.ResSourceOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroupConfig.ResSourceLabelOffset;
+    Descriptor->PinGroupConfig.ResSourceLabelOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroupConfig.VendorOffset;
+    Descriptor->PinGroupConfig.VendorOffset = AcpiUtReadUint16 (&Tmp16);
+    Tmp16 = Descriptor->PinGroupConfig.VendorLength;
+    Descriptor->PinGroupConfig.VendorLength = AcpiUtReadUint16 (&Tmp16);
 
     return (Rnode);
 }

@@ -2247,7 +2247,8 @@ DtCompileWpbt (
 
     /* Extract the length of the Arguments buffer, insert into main table */
 
-    Length = (UINT16) Subtable->TotalLength;
+    AcpiUtWriteUint (&Length, sizeof (UINT16),
+           &Subtable->TotalLength, sizeof (UINT32));
     Table = ACPI_CAST_PTR (ACPI_TABLE_WPBT, ParentTable->Buffer);
     Table->ArgumentsLength = Length;
 

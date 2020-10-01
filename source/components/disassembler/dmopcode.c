@@ -990,23 +990,23 @@ AcpiDmDisassembleOneOp (
 
     case AML_INT_NAMEDFIELD_OP:
 
-        Length = AcpiDmDumpName (Op->Named.Name);
+        Length = AcpiDmDumpName (AcpiUtReadUint32 (&Op->Named.Name));
 
         AcpiOsPrintf (",");
         ASL_CV_PRINT_ONE_COMMENT (Op, AML_NAMECOMMENT, NULL, 0);
         AcpiOsPrintf ("%*.s  %u", (unsigned) (5 - Length), " ",
-            (UINT32) Op->Common.Value.Integer);
+            (UINT32) Op->Common.Value.Size);
 
         AcpiDmCommaIfFieldMember (Op);
 
-        Info->BitOffset += (UINT32) Op->Common.Value.Integer;
+        Info->BitOffset += (UINT32) Op->Common.Value.Size;
         break;
 
     case AML_INT_RESERVEDFIELD_OP:
 
         /* Offset() -- Must account for previous offsets */
 
-        Offset = (UINT32) Op->Common.Value.Integer;
+        Offset = (UINT32) Op->Common.Value.Size;
         Info->BitOffset += Offset;
 
         if (Info->BitOffset % 8 == 0)

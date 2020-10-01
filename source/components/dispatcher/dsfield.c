@@ -444,6 +444,8 @@ AcpiDsGetFieldNames (
     char                    *NamePath;
 #endif
 
+    char                    TmpName[ACPI_NAMESEG_SIZE+1];
+
 
     ACPI_FUNCTION_TRACE_PTR (DsGetFieldNames, Info);
 
@@ -550,14 +552,17 @@ AcpiDsGetFieldNames (
 
             /* Lookup the name, it should already exist */
 
+            memset (TmpName, 0, ACPI_NAMESEG_SIZE+1);
+            AcpiUtWriteUint (TmpName, ACPI_NAMESEG_SIZE,
+                &Arg->Named.Name, ACPI_NAMESEG_SIZE);
             Status = AcpiNsLookup (WalkState->ScopeInfo,
-                (char *) &Arg->Named.Name, Info->FieldType,
+                TmpName, Info->FieldType,
                 ACPI_IMODE_EXECUTE, ACPI_NS_DONT_OPEN_SCOPE,
                 WalkState, &Info->FieldNode);
             if (ACPI_FAILURE (Status))
             {
                 ACPI_ERROR_NAMESPACE (WalkState->ScopeInfo,
-                    (char *) &Arg->Named.Name, Status);
+                    TmpName, Status);
                 return_ACPI_STATUS (Status);
             }
             else
@@ -811,8 +816,13 @@ AcpiDsInitFieldObjects (
          */
         if (Arg->Common.AmlOpcode == AML_INT_NAMEDFIELD_OP)
         {
+            char Tmp[ACPI_NAMESEG_SIZE+1];
+
+            memset (&Tmp, 0, ACPI_NAMESEG_SIZE+1);
+            AcpiUtWriteUint (&Tmp, ACPI_NAMESEG_SIZE,
+                &Arg->Named.Name, ACPI_NAMESEG_SIZE);
             Status = AcpiNsLookup (WalkState->ScopeInfo,
-                (char *) &Arg->Named.Name, Type, ACPI_IMODE_LOAD_PASS1,
+                Tmp, Type, ACPI_IMODE_LOAD_PASS1,
                 Flags, WalkState, &Node);
             if (ACPI_FAILURE (Status))
             {
