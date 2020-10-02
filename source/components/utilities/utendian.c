@@ -178,7 +178,7 @@ UINT64 AcpiUtReadUint64 (void *SrcPtr) { return *(UINT16 *)SrcPtr; }
 
 #if defined(ACPI_BIG_ENDIAN)
 void AcpiUtWriteUint (void *DstPtr, int DstLength,
-	              void *SrcPtr, int SrcLength)
+	              const void *SrcPtr, const int SrcLength)
 {
     UINT8 *Dst = (UINT8 *)DstPtr;
     UINT8 *Src = (UINT8 *)SrcPtr;
@@ -192,7 +192,7 @@ void AcpiUtWriteUint (void *DstPtr, int DstLength,
 }
 #else
 void AcpiUtWriteUint (void *DstPtr, int DstLength,
-	              void *SrcPtr, int SrcLength)
+	              const void *SrcPtr, const int SrcLength)
 {
     UINT8 *Dst = (UINT8 *)DstPtr;
     UINT8 *Src = (UINT8 *)SrcPtr;

@@ -1291,8 +1291,8 @@ void
 AcpiUtWriteUint (
     void                    *DstPtr,
     int                     DstLength,
-    void                    *SrcPtr,
-    int                     SrcLength);
+    const void              *SrcPtr,
+    const int               SrcLength);
 #endif
 
 #endif /* _ACUTILS_H */
