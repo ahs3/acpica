@@ -312,7 +312,7 @@ AcpiDmByteList (
 
 
     ByteData = Op->Named.Data;
-    ByteCount = (UINT32) Op->Common.Value.Integer;
+    ByteCount = (UINT32) Op->Common.Value.Size;
 
     /*
      * The byte list belongs to a buffer, and can be produced by either

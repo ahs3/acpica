@@ -299,15 +299,19 @@ AcpiDmGpioCommon (
     char                    *DeviceName = NULL;
     UINT32                  PinCount;
     UINT32                  i;
+    UINT16                  ResSourceOffset;
+    UINT16                  VendorOffset;
+    UINT16                  VendorLength;
 
 
     /* ResourceSource, ResourceSourceIndex, ResourceType */
 
     AcpiDmIndent (Level + 1);
-    if (Resource->Gpio.ResSourceOffset)
+    ResSourceOffset = AcpiUtReadUint16(&Resource->Gpio.ResSourceOffset);
+    if (ResSourceOffset)
     {
         DeviceName = ACPI_ADD_PTR (char,
-            Resource, Resource->Gpio.ResSourceOffset),
+            Resource, ResSourceOffset),
         AcpiUtPrintString (DeviceName, ACPI_UINT16_MAX);
     }
 
@@ -323,15 +327,15 @@ AcpiDmGpioCommon (
 
     /* Dump the vendor data */
 
-    if (Resource->Gpio.VendorOffset)
+    VendorOffset = AcpiUtReadUint16(&Resource->Gpio.VendorOffset);
+    VendorLength = AcpiUtReadUint16(&Resource->Gpio.VendorLength);
+    if (VendorOffset)
     {
         AcpiOsPrintf ("\n");
         AcpiDmIndent (Level + 1);
-        VendorData = ACPI_ADD_PTR (UINT8, Resource,
-            Resource->Gpio.VendorOffset);
+        VendorData = ACPI_ADD_PTR (UINT8, Resource, VendorOffset);
 
-        AcpiDmDumpRawDataBuffer (VendorData,
-            Resource->Gpio.VendorLength, Level);
+        AcpiDmDumpRawDataBuffer (VendorData, VendorLength, Level);
     }
 
     AcpiOsPrintf (")\n");
@@ -341,17 +345,21 @@ AcpiDmGpioCommon (
     AcpiDmIndent (Level + 1);
     AcpiOsPrintf ("{   // Pin list\n");
 
+    PinCount = (UINT32) AcpiUtReadUint16(&Resource->Gpio.ResSourceOffset);
+    PinCount -= (UINT32) AcpiUtReadUint16(&Resource->Gpio.PinTableOffset);
+    PinCount /= sizeof (UINT16);
+
     PinCount = ((UINT32) (Resource->Gpio.ResSourceOffset -
         Resource->Gpio.PinTableOffset)) /
         sizeof (UINT16);
 
     PinList = (UINT16 *) ACPI_ADD_PTR (char, Resource,
-        Resource->Gpio.PinTableOffset);
+        AcpiUtReadUint16(&Resource->Gpio.PinTableOffset));
 
     for (i = 0; i < PinCount; i++)
     {
         AcpiDmIndent (Level + 2);
-        AcpiOsPrintf ("0x%4.4X%s\n", PinList[i],
+        AcpiOsPrintf ("0x%4.4X%s\n", AcpiUtReadUint16(&(PinList[i])),
             ((i + 1) < PinCount) ? "," : "");
     }
 
@@ -407,7 +415,8 @@ AcpiDmGpioIntDescriptor (
     {
         AcpiOsPrintf ("0x%2.2X, ", Resource->Gpio.PinConfig);
     }
-    AcpiOsPrintf ("0x%4.4X,\n", Resource->Gpio.DebounceTimeout);
+    AcpiOsPrintf ("0x%4.4X,\n",
+		  AcpiUtReadUint16(&Resource->Gpio.DebounceTimeout));
 
     /* Dump the GpioInt/GpioIo common portion of the descriptor */
 
@@ -458,8 +467,8 @@ AcpiDmGpioIoDescriptor (
 
     /* DebounceTimeout, DriveStrength, IoRestriction */
 
-    AcpiOsPrintf ("0x%4.4X, ", Resource->Gpio.DebounceTimeout);
-    AcpiOsPrintf ("0x%4.4X, ", Resource->Gpio.DriveStrength);
+    AcpiOsPrintf ("0x%4.4X, ", AcpiUtReadUint16(&Resource->Gpio.DebounceTimeout));
+    AcpiOsPrintf ("0x%4.4X, ", AcpiUtReadUint16(&Resource->Gpio.DriveStrength));
     AcpiOsPrintf ("%s,\n",
         AcpiGbl_IorDecode [ACPI_GET_2BIT_FLAG (Resource->Gpio.IntFlags)]);
 
@@ -542,6 +551,9 @@ AcpiDmPinFunctionDescriptor (
     char                    *DeviceName = NULL;
     UINT32                  PinCount;
     UINT32                  i;
+    UINT16                  ResSourceOffset;
+    UINT16                  VendorOffset;
+    UINT16                  VendorLength;
 
     AcpiDmIndent (Level);
     AcpiOsPrintf ("PinFunction (%s, ",
@@ -559,12 +571,14 @@ AcpiDmPinFunctionDescriptor (
 
     /* FunctionNumber */
 
-    AcpiOsPrintf ("0x%4.4X, ", Resource->PinFunction.FunctionNumber);
+    AcpiOsPrintf ("0x%4.4X, ", 
+		  AcpiUtReadUint16(&Resource->PinFunction.FunctionNumber));
 
-    if (Resource->PinFunction.ResSourceOffset)
+    ResSourceOffset = AcpiUtReadUint16(&Resource->PinFunction.ResSourceOffset);
+    if (ResSourceOffset)
     {
         DeviceName = ACPI_ADD_PTR (char,
-            Resource, Resource->PinFunction.ResSourceOffset),
+            Resource, ResSourceOffset),
         AcpiUtPrintString (DeviceName, ACPI_UINT16_MAX);
     }
 
@@ -584,15 +598,15 @@ AcpiDmPinFunctionDescriptor (
 
     /* Dump the vendor data */
 
-    if (Resource->PinFunction.VendorLength)
+    VendorOffset = AcpiUtReadUint16(&Resource->PinFunction.VendorOffset);
+    VendorLength = AcpiUtReadUint16(&Resource->PinFunction.VendorLength);
+    if (VendorLength)
     {
         AcpiOsPrintf ("\n");
         AcpiDmIndent (Level + 1);
-        VendorData = ACPI_ADD_PTR (UINT8, Resource,
-            Resource->PinFunction.VendorOffset);
+        VendorData = ACPI_ADD_PTR (UINT8, Resource, VendorOffset);
 
-        AcpiDmDumpRawDataBuffer (VendorData,
-            Resource->PinFunction.VendorLength, Level);
+        AcpiDmDumpRawDataBuffer (VendorData, VendorLength, Level);
     }
 
     AcpiOsPrintf (")\n");
@@ -603,17 +617,17 @@ AcpiDmPinFunctionDescriptor (
 
     AcpiOsPrintf ("{   // Pin list\n");
 
-    PinCount = ((UINT32) (Resource->PinFunction.ResSourceOffset -
-        Resource->PinFunction.PinTableOffset)) /
-        sizeof (UINT16);
+    PinCount = AcpiUtReadUint16(&Resource->PinFunction.ResSourceOffset);
+    PinCount -= AcpiUtReadUint16(&Resource->PinFunction.PinTableOffset);
+    PinCount /= sizeof (UINT16);
 
     PinList = (UINT16 *) ACPI_ADD_PTR (char, Resource,
-        Resource->PinFunction.PinTableOffset);
+        AcpiUtReadUint16(&Resource->PinFunction.PinTableOffset));
 
     for (i = 0; i < PinCount; i++)
     {
         AcpiDmIndent (Level + 2);
-        AcpiOsPrintf ("0x%4.4X%s\n", PinList[i],
+        AcpiOsPrintf ("0x%4.4X%s\n", AcpiUtReadUint16(&(PinList[i])),
             ((i + 1) < PinCount) ? "," : "");
     }
 

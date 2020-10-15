@@ -154,7 +154,7 @@ UINT64 AcpiUtReadUint64 (void *SrcPtr)
     return Result;
 }
 #else
-UINT64 AcpiUtReadUint64 (void *SrcPtr) { return *(UINT16 *)SrcPtr; }
+UINT64 AcpiUtReadUint64 (void *SrcPtr) { return *(UINT64 *)SrcPtr; }
 #endif
 
 /*******************************************************************************
