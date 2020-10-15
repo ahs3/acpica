@@ -28,28 +28,29 @@ HEADERS = \
     $(wildcard $(ACPIDUMP)/*.h)
 
 OBJECTS = \
-	$(OBJDIR)/apdump.o\
-	$(OBJDIR)/apfiles.o\
-	$(OBJDIR)/apmain.o\
-	$(OBJDIR)/cmfsize.o\
-	$(OBJDIR)/getopt.o\
-	$(OBJDIR)/osunixdir.o\
-	$(OBJDIR)/osunixmap.o\
-	$(OBJDIR)/osunixxf.o\
-	$(OBJDIR)/tbprint.o\
-	$(OBJDIR)/tbxfroot.o\
-	$(OBJDIR)/utascii.o\
-	$(OBJDIR)/utbuffer.o\
-	$(OBJDIR)/utdebug.o\
-	$(OBJDIR)/utexcep.o\
-	$(OBJDIR)/utglobal.o\
-	$(OBJDIR)/uthex.o\
-	$(OBJDIR)/utmath.o\
-	$(OBJDIR)/utnonansi.o\
-	$(OBJDIR)/utstring.o\
-	$(OBJDIR)/utstrsuppt.o\
-	$(OBJDIR)/utstrtoul64.o\
-	$(OBJDIR)/utxferror.o
+    $(OBJDIR)/apdump.o\
+    $(OBJDIR)/apfiles.o\
+    $(OBJDIR)/apmain.o\
+    $(OBJDIR)/cmfsize.o\
+    $(OBJDIR)/getopt.o\
+    $(OBJDIR)/osunixdir.o\
+    $(OBJDIR)/osunixmap.o\
+    $(OBJDIR)/osunixxf.o\
+    $(OBJDIR)/utendian.o\
+    $(OBJDIR)/tbprint.o\
+    $(OBJDIR)/tbxfroot.o\
+    $(OBJDIR)/utascii.o\
+    $(OBJDIR)/utbuffer.o\
+    $(OBJDIR)/utdebug.o\
+    $(OBJDIR)/utexcep.o\
+    $(OBJDIR)/utglobal.o\
+    $(OBJDIR)/uthex.o\
+    $(OBJDIR)/utmath.o\
+    $(OBJDIR)/utnonansi.o\
+    $(OBJDIR)/utstring.o\
+    $(OBJDIR)/utstrsuppt.o\
+    $(OBJDIR)/utstrtoul64.o\
+    $(OBJDIR)/utxferror.o
 
 #
 # Per-host interfaces
@@ -72,10 +73,10 @@ endif
 
 ifeq ($(HOST_FAMILY), BSD)
 OBJECTS += \
-	$(OBJDIR)/osbsdtbl.o
+    $(OBJDIR)/osbsdtbl.o
 else
 OBJECTS += \
-	$(OBJDIR)/oslinuxtbl.o
+    $(OBJDIR)/oslinuxtbl.o
 endif
 
 #

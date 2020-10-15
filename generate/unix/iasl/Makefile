@@ -18,24 +18,24 @@ PROG = $(OBJDIR)/iasl
 # Search paths for source files
 #
 vpath %.c \
-    $(ASL_COMPILER)\
-    $(ACPICA_DEBUGGER)\
-    $(ACPICA_DISASSEMBLER)\
-    $(ACPICA_DISPATCHER)\
-    $(ACPICA_EXECUTER)\
-    $(ACPICA_NAMESPACE)\
-    $(ACPICA_PARSER)\
-    $(ACPICA_TABLES)\
-    $(ACPICA_UTILITIES)\
-    $(ACPICA_COMMON)\
-    $(ACPICA_OSL)
+	$(ASL_COMPILER)\
+	$(ACPICA_DEBUGGER)\
+	$(ACPICA_DISASSEMBLER)\
+	$(ACPICA_DISPATCHER)\
+	$(ACPICA_EXECUTER)\
+	$(ACPICA_NAMESPACE)\
+	$(ACPICA_PARSER)\
+	$(ACPICA_TABLES)\
+	$(ACPICA_UTILITIES)\
+	$(ACPICA_COMMON)\
+	$(ACPICA_OSL)
 
 HEADERS = \
-    $(wildcard $(ASL_COMPILER)/*.h)\
-    $(OBJDIR)/aslcompiler.y.h\
-    $(OBJDIR)/dtcompilerparser.y.h\
-    $(OBJDIR)/dtparser.y.h\
-    $(OBJDIR)/prparser.y.h
+	$(wildcard $(ASL_COMPILER)/*.h)\
+	$(OBJDIR)/aslcompiler.y.h\
+	$(OBJDIR)/dtcompilerparser.y.h\
+	$(OBJDIR)/dtparser.y.h\
+	$(OBJDIR)/prparser.y.h
 
 OBJECTS = \
 	$(OBJDIR)/aslcompilerlex.o\
@@ -225,6 +225,7 @@ OBJECTS = \
 	$(OBJDIR)/utdebug.o\
 	$(OBJDIR)/utdecode.o\
 	$(OBJDIR)/utdelete.o\
+	$(OBJDIR)/utendian.o\
 	$(OBJDIR)/uterror.o\
 	$(OBJDIR)/utexcep.o\
 	$(OBJDIR)/utglobal.o\
@@ -286,9 +287,9 @@ ASL_LEXER = \
 # Flags specific to iASL compiler
 #
 CFLAGS += \
-    -DACPI_ASL_COMPILER\
-    -I$(ASL_COMPILER)\
-    -I$(OBJDIR)
+	-DACPI_ASL_COMPILER\
+	-I$(ASL_COMPILER)\
+	-I$(OBJDIR)
 
 #
 # Common Rules

@@ -179,33 +179,6 @@ UtDisplayErrorSummary (
     UINT32                  FileId);
 
 
-/*******************************************************************************
- *
- * FUNCTION:    UtIsBigEndianMachine
- *
- * PARAMETERS:  None
- *
- * RETURN:      TRUE if machine is big endian
- *              FALSE if machine is little endian
- *
- * DESCRIPTION: Detect whether machine is little endian or big endian.
- *
- ******************************************************************************/
-
-UINT8
-UtIsBigEndianMachine (
-    void)
-{
-    union {
-        UINT32              Integer;
-        UINT8               Bytes[4];
-    } Overlay =                 {0xFF000000};
-
-
-    return (Overlay.Bytes[0]); /* Returns 0xFF (TRUE) for big endian */
-}
-
-
 /******************************************************************************
  *
  * FUNCTION:    UtQueryForOverwrite

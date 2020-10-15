@@ -29,29 +29,30 @@ HEADERS = \
     $(wildcard $(ACPIHELP)/*.h)
 
 OBJECTS = \
-	$(OBJDIR)/ahaml.o\
-	$(OBJDIR)/ahamlops.o\
-	$(OBJDIR)/ahasl.o\
-	$(OBJDIR)/ahaslkey.o\
-	$(OBJDIR)/ahaslops.o\
-	$(OBJDIR)/ahdecode.o\
-	$(OBJDIR)/ahgrammar.o\
-	$(OBJDIR)/ahids.o\
-	$(OBJDIR)/ahpredef.o\
-	$(OBJDIR)/ahmain.o\
-	$(OBJDIR)/ahtable.o\
-	$(OBJDIR)/ahuuids.o\
-	$(OBJDIR)/aslmessages.o\
-	$(OBJDIR)/getopt.o\
-	$(OBJDIR)/osunixxf.o\
-	$(OBJDIR)/utdebug.o\
-	$(OBJDIR)/utexcep.o\
-	$(OBJDIR)/utglobal.o\
-	$(OBJDIR)/uthex.o\
-	$(OBJDIR)/utmath.o\
-	$(OBJDIR)/utnonansi.o\
-	$(OBJDIR)/utpredef.o\
-	$(OBJDIR)/utuuid.o
+    $(OBJDIR)/ahaml.o\
+    $(OBJDIR)/ahamlops.o\
+    $(OBJDIR)/ahasl.o\
+    $(OBJDIR)/ahaslkey.o\
+    $(OBJDIR)/ahaslops.o\
+    $(OBJDIR)/ahdecode.o\
+    $(OBJDIR)/ahgrammar.o\
+    $(OBJDIR)/ahids.o\
+    $(OBJDIR)/ahpredef.o\
+    $(OBJDIR)/ahmain.o\
+    $(OBJDIR)/ahtable.o\
+    $(OBJDIR)/ahuuids.o\
+    $(OBJDIR)/aslmessages.o\
+    $(OBJDIR)/getopt.o\
+    $(OBJDIR)/osunixxf.o\
+    $(OBJDIR)/utdebug.o\
+    $(OBJDIR)/utendian.o\
+    $(OBJDIR)/utexcep.o\
+    $(OBJDIR)/utglobal.o\
+    $(OBJDIR)/uthex.o\
+    $(OBJDIR)/utmath.o\
+    $(OBJDIR)/utnonansi.o\
+    $(OBJDIR)/utpredef.o\
+    $(OBJDIR)/utuuid.o
 
 #
 # Flags specific to acpihelp

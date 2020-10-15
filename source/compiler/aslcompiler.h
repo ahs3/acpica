@@ -1224,10 +1224,6 @@ DbgPrint (
 #define ASL_PARSE_OUTPUT    1
 #define ASL_TREE_OUTPUT     2
 
-UINT8
-UtIsBigEndianMachine (
-    void);
-
 BOOLEAN
 UtQueryForOverwrite (
     char                    *Pathname);
