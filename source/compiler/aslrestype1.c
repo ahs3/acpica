@@ -328,10 +328,10 @@ RsDoMemory24Descriptor (
     /* Validate the Min/Max/Len/Align values (Alignment==0 means 64K) */
 
     RsSmallAddressCheck (ACPI_RESOURCE_NAME_MEMORY24,
-        Descriptor->Memory24.Minimum,
-        Descriptor->Memory24.Maximum,
-        Descriptor->Memory24.AddressLength,
-        Descriptor->Memory24.Alignment,
+        (UINT32) AcpiUtReadUint16 (&Descriptor->Memory24.Minimum),
+        (UINT32) AcpiUtReadUint16 (&Descriptor->Memory24.Maximum),
+        (UINT32) AcpiUtReadUint16 (&Descriptor->Memory24.AddressLength),
+        (UINT32) AcpiUtReadUint16 (&Descriptor->Memory24.Alignment),
         MinOp, MaxOp, LengthOp, NULL, Info->DescriptorTypeOp);
 
     return (Rnode);
@@ -442,10 +442,10 @@ RsDoMemory32Descriptor (
     /* Validate the Min/Max/Len/Align values */
 
     RsSmallAddressCheck (ACPI_RESOURCE_NAME_MEMORY32,
-        Descriptor->Memory32.Minimum,
-        Descriptor->Memory32.Maximum,
-        Descriptor->Memory32.AddressLength,
-        Descriptor->Memory32.Alignment,
+        AcpiUtReadUint32 (&Descriptor->Memory32.Minimum),
+        AcpiUtReadUint32 (&Descriptor->Memory32.Maximum),
+        AcpiUtReadUint32 (&Descriptor->Memory32.AddressLength),
+        AcpiUtReadUint32 (&Descriptor->Memory32.Alignment),
         MinOp, MaxOp, LengthOp, AlignOp, Info->DescriptorTypeOp);
 
     return (Rnode);

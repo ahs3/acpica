@@ -436,7 +436,7 @@ RsDoFixedIoDescriptor (
 
     /* Error checks */
 
-    if (Descriptor->FixedIo.Address > 0x03FF)
+    if (AcpiUtReadUint16 (&Descriptor->FixedIo.Address) > 0x03FF)
     {
         AslError (ASL_WARNING, ASL_MSG_ISA_ADDRESS, AddressOp, NULL);
     }
