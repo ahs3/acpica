@@ -1420,8 +1420,8 @@ AcpiDmDumpNfit (
 
         case ACPI_NFIT_TYPE_SMBIOS:
 
-            Length = Subtable->Length -
-                sizeof (ACPI_NFIT_SMBIOS) + sizeof (UINT8);
+            Length = Subtable->Length + sizeof (UINT8) -
+               sizeof (ACPI_NFIT_SMBIOS);
 
             if (Length)
             {

@@ -1724,7 +1724,8 @@ AcpiDmDumpTable (
                 break;
             }
 
-            AcpiDmDumpBuffer (Target, 0, ByteLength, 0, NULL);
+            /* AcpiDmDumpBuffer (Target, 0, ByteLength, 0, NULL); */
+            AcpiDmDumpBuffer (Target, CurrentOffset, ByteLength, 0, NULL);
             break;
 
         case ACPI_DMT_RGRT:
