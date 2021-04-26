@@ -668,7 +668,7 @@ AcpiDmDumpDbg2 (
 
         if (Subtable->OemDataOffset)
         {
-            Status = AcpiDmDumpTable (Length, Offset + Subtable->OemDataOffset,
+            Status = AcpiDmDumpTable (Length, Subtable->OemDataOffset,
                 Subtable, Subtable->OemDataLength,
                 AcpiDmTableInfoDbg2OemData);
             if (ACPI_FAILURE (Status))
