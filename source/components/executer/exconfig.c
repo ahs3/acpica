@@ -8,7 +8,7 @@
  *
  * 1. Copyright Notice
  *
- * Some or all of this work - Copyright (c) 1999 - 2022, Intel Corp.
+ * Some or all of this work - Copyright (c) 1999 - 2024, Intel Corp.
  * All rights reserved.
  *
  * 2. License
@@ -471,7 +471,7 @@ AcpiExLoadOp (
     }
     if (Target->Common.Type != ACPI_TYPE_INTEGER)
     {
-        fprintf (stderr, "Type not integer: %X\n", Target->Common.Type);
+        ACPI_ERROR ((AE_INFO, "Type not integer: %X", Target->Common.Type));
         return_ACPI_STATUS (AE_AML_OPERAND_TYPE);
     }
 

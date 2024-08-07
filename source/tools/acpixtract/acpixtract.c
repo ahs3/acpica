@@ -9,7 +9,7 @@
  *
  * 1. Copyright Notice
  *
- * Some or all of this work - Copyright (c) 1999 - 2022, Intel Corp.
+ * Some or all of this work - Copyright (c) 1999 - 2024, Intel Corp.
  * All rights reserved.
  *
  * 2. License
@@ -561,7 +561,7 @@ AxListAllTables (
     FILE                    *InputFile;
     unsigned char           Header[48];
     UINT32                  ByteCount = 0;
-    UINT32                  ThisLineByteCount;
+    INT32                   ThisLineByteCount;
     unsigned int            State = AX_STATE_FIND_HEADER;
 
 

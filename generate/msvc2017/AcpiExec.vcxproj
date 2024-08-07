@@ -88,6 +88,7 @@
       <CallingConvention>FastCall</CallingConvention>
       <CompileAs>CompileAsC</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <PreLinkEvent>
       <Command>if NOT EXIST ..\..\libraries mkdir ..\..\libraries</Command>
@@ -113,6 +114,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\AcpiExec\AcpiExec.exe</OutputFile>
       <AdditionalDependencies>setargv.obj;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -330,6 +332,7 @@
     <ClCompile Include="..\..\source\components\utilities\utascii.c" />
     <ClCompile Include="..\..\source\components\utilities\utbuffer.c" />
     <ClCompile Include="..\..\source\components\utilities\utcache.c" />
+    <ClCompile Include="..\..\source\components\utilities\utcksum.c" />
     <ClCompile Include="..\..\source\components\utilities\utcopy.c" />
     <ClCompile Include="..\..\source\components\utilities\utdebug.c" />
     <ClCompile Include="..\..\source\components\utilities\utdecode.c" />

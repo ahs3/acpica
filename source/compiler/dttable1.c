@@ -8,7 +8,7 @@
  *
  * 1. Copyright Notice
  *
- * Some or all of this work - Copyright (c) 1999 - 2022, Intel Corp.
+ * Some or all of this work - Copyright (c) 1999 - 2024, Intel Corp.
  * All rights reserved.
  *
  * 2. License
@@ -206,7 +206,14 @@ DtCompileAest (
     UINT32                  i;
     UINT32                  Offset;
     DT_FIELD                **PFieldList = (DT_FIELD **) List;
+    ACPI_AEST_NODE_INTERFACE_HEADER *AestNodeHeader;
+    UINT8                   Revision;
+    ACPI_TABLE_HEADER       *Header;
 
+    ParentTable = DtPeekSubtable ();
+
+    Header = ACPI_CAST_PTR (ACPI_TABLE_HEADER, ParentTable->Buffer);
+    Revision = Header->Revision;
 
     while (*PFieldList)
     {
@@ -257,13 +264,36 @@ DtCompileAest (
             break;
 
         case ACPI_AEST_VENDOR_ERROR_NODE:
+            switch (Revision)
+            {
+            case 1:
+                InfoTable = AcpiDmTableInfoAestVendorError;
+                break;
 
-            InfoTable = AcpiDmTableInfoAestVendorError;
+            case 2:
+                InfoTable = AcpiDmTableInfoAestVendorV2Error;
+                break;
+
+            default:
+                AcpiOsPrintf ("Unknown AEST Vendor Error Revision: %X\n",
+                    Revision);
+                return (AE_ERROR);
+            }
             break;
 
         case ACPI_AEST_GIC_ERROR_NODE:
 
             InfoTable = AcpiDmTableInfoAestGicError;
+            break;
+
+        case ACPI_AEST_PCIE_ERROR_NODE:
+
+            InfoTable = AcpiDmTableInfoAestPCIeError;
+            break;
+
+        case ACPI_AEST_PROXY_ERROR_NODE:
+
+            InfoTable = AcpiDmTableInfoAestProxyError;
             break;
 
         /* Error case below */
@@ -341,9 +371,57 @@ DtCompileAest (
         }
 
         /* Compile the (required) node interface structure */
+        if (Revision == 1)
+        {
+            InfoTable = AcpiDmTableInfoAestXface;
+        }
+        else if (Revision == 2)
+        {
+            Status = DtCompileTable (PFieldList, AcpiDmTableInfoAestXfaceHeader,
+                &Subtable);
+            if (ACPI_FAILURE (Status))
+            {
+                return (Status);
+            }
 
-        Status = DtCompileTable (PFieldList, AcpiDmTableInfoAestXface,
-            &Subtable);
+            ParentTable = DtPeekSubtable ();
+            DtInsertSubtable (ParentTable, Subtable);
+
+            Offset += Subtable->Length;
+
+            AestNodeHeader = ACPI_CAST_PTR (ACPI_AEST_NODE_INTERFACE_HEADER,
+                    Subtable->Buffer);
+
+            switch (AestNodeHeader->GroupFormat)
+            {
+            case ACPI_AEST_NODE_GROUP_FORMAT_4K:
+
+                InfoTable = AcpiDmTableInfoAestXface4k;
+                break;
+
+            case ACPI_AEST_NODE_GROUP_FORMAT_16K:
+
+                InfoTable = AcpiDmTableInfoAestXface16k;
+                break;
+
+            case ACPI_AEST_NODE_GROUP_FORMAT_64K:
+
+                InfoTable = AcpiDmTableInfoAestXface64k;
+                break;
+
+            /* Error case below */
+            default:
+                AcpiOsPrintf ("Unknown AEST Interface Group Format: %X\n",
+                    AestNodeHeader->GroupFormat);
+                return (AE_ERROR);
+            }
+        }
+        else
+        {
+           AcpiOsPrintf ("Unknown AEST Revision: %X\n", Revision);
+        }
+
+        Status = DtCompileTable (PFieldList, InfoTable, &Subtable);
         if (ACPI_FAILURE (Status))
         {
             return (Status);
@@ -367,8 +445,22 @@ DtCompileAest (
 
         for (i = 0; i < ErrorNodeHeader->NodeInterruptCount; i++)
         {
-            Status = DtCompileTable (PFieldList, AcpiDmTableInfoAestXrupt,
-                &Subtable);
+            switch (Revision) {
+            case 1:
+
+                InfoTable = AcpiDmTableInfoAestXrupt;
+                break;
+
+            case 2:
+
+                InfoTable = AcpiDmTableInfoAestXruptV2;
+                break;
+
+            default:
+                AcpiOsPrintf ("Unknown AEST Revision: %X\n", Revision);
+                return (AE_ERROR);
+            }
+            Status = DtCompileTable (PFieldList, InfoTable, &Subtable);
             if (ACPI_FAILURE (Status))
             {
                 return (Status);
@@ -386,6 +478,102 @@ DtCompileAest (
     return (AE_OK);
 }
 
+
+/******************************************************************************
+ *
+ * FUNCTION:    DtCompileApmt
+ *
+ * PARAMETERS:  List                - Current field list pointer
+ *
+ * RETURN:      Status
+ *
+ * DESCRIPTION: Compile APMT.
+ *
+ *****************************************************************************/
+
+ACPI_STATUS
+DtCompileApmt (
+    void                    **List)
+{
+    ACPI_STATUS             Status;
+    ACPI_TABLE_HEADER       *Header;
+    ACPI_APMT_NODE          *ApmtNode;
+    ACPI_APMT_NODE          *PeerApmtNode;
+    DT_SUBTABLE             *Subtable;
+    DT_SUBTABLE             *PeerSubtable;
+    DT_SUBTABLE             *ParentTable;
+    DT_FIELD                **PFieldList = (DT_FIELD**)List;
+    DT_FIELD                *SubtableStart;
+    UINT32                  CurLength;
+    char                    MsgBuffer[64] = "";
+
+    ParentTable = DtPeekSubtable();
+
+    Header = ACPI_CAST_PTR(ACPI_TABLE_HEADER, ParentTable->Buffer);
+
+    CurLength = sizeof(ACPI_TABLE_HEADER);
+
+    /* Walk the parse tree */
+
+    while (*PFieldList)
+    {
+        /* APMT Node Subtable */
+
+        SubtableStart = *PFieldList;
+
+        Status = DtCompileTable(PFieldList, AcpiDmTableInfoApmtNode, &Subtable);
+
+        if (ACPI_FAILURE(Status))
+        {
+            return (Status);
+        }
+
+        ApmtNode = ACPI_CAST_PTR(ACPI_APMT_NODE, Subtable->Buffer);
+
+        if (ApmtNode->Length != sizeof(ACPI_APMT_NODE))
+        {
+            DtFatal(ASL_MSG_INVALID_LENGTH, SubtableStart, "APMT");
+            return (AE_ERROR);
+        }
+
+        if (ApmtNode->Type >= ACPI_APMT_NODE_TYPE_COUNT)
+        {
+            snprintf(MsgBuffer, 64, "Node Type : 0x%X", ApmtNode->Type);
+            DtFatal(ASL_MSG_INVALID_TYPE, SubtableStart, MsgBuffer);
+            return (AE_ERROR);
+        }
+
+        PeerSubtable = DtGetNextSubtable(ParentTable, NULL);
+
+        /* Validate the node id needs to be unique. */
+        while(PeerSubtable)
+        {
+            PeerApmtNode = ACPI_CAST_PTR(ACPI_APMT_NODE, PeerSubtable->Buffer);
+            if (PeerApmtNode->Id == ApmtNode->Id)
+            {
+                snprintf(MsgBuffer, 64, "Node Id : 0x%X existed", ApmtNode->Id);
+                DtFatal(ASL_MSG_DUPLICATE_ITEM, SubtableStart, MsgBuffer);
+                return (AE_ERROR);
+            }
+
+            PeerSubtable = DtGetNextSubtable(ParentTable, PeerSubtable);
+        }
+
+        CurLength += ApmtNode->Length;
+
+        DtInsertSubtable(ParentTable, Subtable);
+    }
+
+    if (Header->Length != CurLength)
+    {
+        snprintf(MsgBuffer, 64, " - APMT Length : %u (expected: %u)",
+            Header->Length, CurLength);
+        DtFatal(ASL_MSG_INVALID_LENGTH, NULL, MsgBuffer);
+        return (AE_ERROR);
+    }
+
+    return (AE_OK);
+}
 
 /******************************************************************************
  *
@@ -558,6 +746,218 @@ DtCompileAsf (
     return (AE_OK);
 }
 
+/******************************************************************************
+ *
+ * FUNCTION:    DtCompileAspt
+ *
+ * PARAMETERS:  List                - Current field list pointer
+ *
+ * RETURN:      Status
+ *
+ * DESCRIPTION: Compile ASPT.
+ *
+ *****************************************************************************/
+
+ACPI_STATUS
+DtCompileAspt (
+    void                    **List)
+{
+    ACPI_ASPT_HEADER        *AsptTable;
+    DT_SUBTABLE             *Subtable;
+    DT_SUBTABLE             *ParentTable;
+    ACPI_DMTABLE_INFO       *InfoTable;
+    ACPI_STATUS             Status;
+    DT_FIELD                **PFieldList = (DT_FIELD **) List;
+    DT_FIELD                *SubtableStart;
+
+    Status = DtCompileTable (PFieldList, AcpiDmTableInfoAspt, &Subtable);
+    if (ACPI_FAILURE (Status))
+    {
+        return (Status);
+    }
+
+    ParentTable = DtPeekSubtable ();
+    DtInsertSubtable (ParentTable, Subtable);
+
+    while (*PFieldList)
+    {
+        SubtableStart = *PFieldList;
+        Status = DtCompileTable (PFieldList, AcpiDmTableInfoAsptHdr,
+            &Subtable);
+        if (ACPI_FAILURE (Status))
+        {
+            return (Status);
+        }
+
+        ParentTable = DtPeekSubtable ();
+        DtInsertSubtable (ParentTable, Subtable);
+        DtPushSubtable (Subtable);
+
+        AsptTable = ACPI_CAST_PTR (ACPI_ASPT_HEADER, Subtable->Buffer);
+
+        switch (AsptTable->Type) /* Mask off top bit */
+        {
+        case ACPI_ASPT_TYPE_GLOBAL_REGS:
+
+            InfoTable = AcpiDmTableInfoAspt0;
+            break;
+
+        case ACPI_ASPT_TYPE_SEV_MBOX_REGS:
+
+            InfoTable = AcpiDmTableInfoAspt1;
+            break;
+
+        case ACPI_ASPT_TYPE_ACPI_MBOX_REGS:
+
+            InfoTable = AcpiDmTableInfoAspt2;
+            break;
+
+        default:
+
+            DtFatal (ASL_MSG_UNKNOWN_SUBTABLE, SubtableStart, "ASPT");
+            return (AE_ERROR);
+        }
+
+        Status = DtCompileTable (PFieldList, InfoTable, &Subtable);
+        if (ACPI_FAILURE (Status))
+        {
+            return (Status);
+        }
+        ParentTable = DtPeekSubtable ();
+        DtInsertSubtable (ParentTable, Subtable);
+        DtPopSubtable ();
+    }
+
+    return (AE_OK);
+}
+
+
+/******************************************************************************
+ *
+ * FUNCTION:    DtCompileCdat
+ *
+ * PARAMETERS:  List                - Current field list pointer
+ *
+ * RETURN:      Status
+ *
+ * DESCRIPTION: Compile CDAT.
+ *
+ *****************************************************************************/
+
+ACPI_STATUS
+DtCompileCdat (
+    void                    **List)
+{
+    ACPI_STATUS             Status = AE_OK;
+    DT_SUBTABLE             *Subtable;
+    DT_SUBTABLE             *ParentTable;
+    DT_FIELD                **PFieldList = (DT_FIELD **) List;
+    ACPI_CDAT_HEADER        *CdatHeader;
+    ACPI_DMTABLE_INFO       *InfoTable = NULL;
+    DT_FIELD                *SubtableStart;
+
+
+    /* Walk the parse tree.
+     *
+     * Note: Main table consists of only the CDAT table header
+     * (This is not the standard ACPI table header, however)--
+     * Followed by some number of subtables.
+     */
+    while (*PFieldList)
+    {
+        SubtableStart = *PFieldList;
+
+        /* Compile the expected CDAT Subtable header */
+
+        Status = DtCompileTable (PFieldList, AcpiDmTableInfoCdatHeader,
+            &Subtable);
+        if (ACPI_FAILURE (Status))
+        {
+            return (Status);
+        }
+
+        ParentTable = DtPeekSubtable ();
+        DtInsertSubtable (ParentTable, Subtable);
+        DtPushSubtable (Subtable);
+
+        CdatHeader = ACPI_CAST_PTR (ACPI_CDAT_HEADER, Subtable->Buffer);
+
+        /* Decode the subtable by type */
+
+        switch (CdatHeader->Type)
+        {
+        case ACPI_CDAT_TYPE_DSMAS:
+            InfoTable = AcpiDmTableInfoCdat0;
+            break;
+
+        case ACPI_CDAT_TYPE_DSLBIS:
+            InfoTable = AcpiDmTableInfoCdat1;
+            break;
+
+        case ACPI_CDAT_TYPE_DSMSCIS:
+            InfoTable = AcpiDmTableInfoCdat2;
+            break;
+
+        case ACPI_CDAT_TYPE_DSIS:
+            InfoTable = AcpiDmTableInfoCdat3;
+            break;
+
+        case ACPI_CDAT_TYPE_DSEMTS:
+            InfoTable = AcpiDmTableInfoCdat4;
+            break;
+
+        case ACPI_CDAT_TYPE_SSLBIS:
+            InfoTable = AcpiDmTableInfoCdat5;
+            break;
+
+        default:
+            DtFatal (ASL_MSG_UNKNOWN_SUBTABLE, SubtableStart, "CDAT");
+        }
+
+        /* Compile the CDAT subtable */
+
+        Status = DtCompileTable (PFieldList, InfoTable, &Subtable);
+        if (ACPI_FAILURE (Status))
+        {
+            return (Status);
+        }
+
+        ParentTable = DtPeekSubtable ();
+        DtInsertSubtable (ParentTable, Subtable);
+
+        switch (CdatHeader->Type)
+        {
+        /* Multiple entries supported for this type */
+
+        case ACPI_CDAT_TYPE_SSLBIS:
+
+            /*
+             * Check for multiple SSLBEs
+             */
+            while (*PFieldList && !AcpiUtStricmp ((*PFieldList)->Name, "Port X ID"))
+            {
+                Status = DtCompileTable (PFieldList, AcpiDmTableInfoCdatEntries, &Subtable);
+                if (ACPI_FAILURE (Status))
+                {
+                    return (Status);
+                }
+                ParentTable = DtPeekSubtable ();
+                DtInsertSubtable (ParentTable, Subtable);
+            }
+            break;
+
+        default:
+             break;
+        }
+
+        /* Pop off the CDAT Subtable header subtree */
+
+        DtPopSubtable ();
+    }
+
+    return (AE_OK);
+}
+
 
 /******************************************************************************
  *
@@ -631,7 +1031,7 @@ DtCompileCedt (
             /* Look in buffer for the number of targets */
             offset = (unsigned int) ACPI_OFFSET (ACPI_CEDT_CFMWS, InterleaveWays);
             dump = (unsigned char *) Subtable->Buffer - 4;     /* place at beginning of cedt1 */
-            max = 0x01 << dump[offset];     /* 2^max, so 0=1, 1=2, 2=4, 3=8.  8 is MAX */
+            max = 0x01 << dump[offset];     /* 2^max, so 0=1, 1=2, 2=4, 3=8. 8 is MAX */
             if (max > 8)    max=1;          /* Error in encoding Interleaving Ways. */
             if (max == 1)                   /* if only one target, then break here. */
                 break;                      /* break if only one target. */
@@ -657,6 +1057,53 @@ DtCompileCedt (
                     if (Subtable)
                     {
                         DtInsertSubtable (ParentTable, Subtable);       /* got a target, so insert table. */
+                        InsertFlag = 0;
+                    }
+                }
+            }
+
+            DtPopSubtable ();
+            ParentTable = DtPeekSubtable ();
+            break;
+        }
+        case ACPI_CEDT_TYPE_CXIMS: {
+            unsigned char *dump;
+            unsigned int idx, offset, max = 0;
+
+            /* Compile table with first "Xor map" */
+
+            Status = DtCompileTable (PFieldList, AcpiDmTableInfoCedt2, &Subtable);
+            if (ACPI_FAILURE (Status))
+            {
+                return (Status);
+            }
+
+            /* Look in buffer for the number of Xor maps */
+            offset = (unsigned int) ACPI_OFFSET (ACPI_CEDT_CXIMS, NrXormaps);
+            dump = (unsigned char *) Subtable->Buffer - 4;     /* place at beginning of cedt2 */
+            max = dump[offset];
+
+            /* We need to add more XOR maps, so write the current Subtable. */
+
+            ParentTable = DtPeekSubtable ();
+            DtInsertSubtable (ParentTable, Subtable);   /* Insert AcpiDmTableInfoCedt2 table so we can put in */
+            DtPushSubtable (Subtable);
+
+            /* Now, find out all Xor maps beyond the first. */
+
+            for (idx = 1; idx < max; idx++) {
+                ParentTable = DtPeekSubtable ();
+
+                if (*PFieldList)
+                {
+                    Status = DtCompileTable (PFieldList, AcpiDmTableInfoCedt2_te, &Subtable);
+                    if (ACPI_FAILURE (Status))
+                    {
+                        return (Status);
+                    }
+                    if (Subtable)
+                    {
+                        DtInsertSubtable (ParentTable, Subtable);       /* got an Xor map, so insert table. */
                         InsertFlag = 0;
                     }
                 }
@@ -1053,6 +1500,11 @@ DtCompileDmar (
         case ACPI_DMAR_TYPE_NAMESPACE:
 
             InfoTable = AcpiDmTableInfoDmar4;
+            break;
+
+        case ACPI_DMAR_TYPE_SATC:
+
+            InfoTable = AcpiDmTableInfoDmar5;
             break;
 
         default:
@@ -1781,7 +2233,7 @@ DtCompileHmat (
         DtInsertSubtable (ParentTable, Subtable);
         HmatStruct->Length += Subtable->Length;
 
-        /* Compile HMAT structure additionals */
+        /* Compile HMAT structure additional */
 
         switch (HmatStruct->Type)
         {
@@ -1953,9 +2405,9 @@ DtCompileIort (
     Table = ACPI_CAST_PTR (ACPI_TABLE_HEADER, ParentTable->Buffer);
     Revision = Table->Revision;
 
-    /* Both IORT Rev E and E.a have known issues and are not supported */
+    /* IORT Revisions E, E.a & E.c have known issues and are not supported */
 
-    if (Revision == 1 || Revision == 2)
+    if (Revision == 1 || Revision == 2 || Revision == 4)
     {
         DtError (ASL_ERROR, ASL_MSG_UNSUPPORTED, NULL, "IORT table revision");
         return (AE_ERROR);
@@ -2491,7 +2943,6 @@ DtCompileIvrs (
 
             DtInsertSubtable (MainSubtable, Subtable);
             DtPushSubtable (Subtable);
-            ParentTable = MainSubtable;
             break;
 
         case ACPI_IVRS_TYPE_HID:

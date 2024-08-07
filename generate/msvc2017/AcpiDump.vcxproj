@@ -82,6 +82,7 @@
       <CallingConvention>FastCall</CallingConvention>
       <CompileAs>CompileAsC</CompileAs>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <ControlFlowGuard>Guard</ControlFlowGuard>
     </ClCompile>
     <PreLinkEvent>
       <Command>if NOT EXIST ..\..\libraries mkdir ..\..\libraries</Command>
@@ -107,6 +108,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>.\AcpiDump\AcpiDump.exe</OutputFile>
       <AdditionalDependencies>kernel32.lib;advapi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -119,7 +121,7 @@
       <WarningLevel>Level4</WarningLevel>
       <MinimalRebuild>false</MinimalRebuild>
       <StringPooling>true</StringPooling>
-      <AdditionalIncludeDirectories>..\..\source\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\source\include;%(AdditionalIncludeDirectories);..\..\source\compiler</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG;WIN32;_CONSOLE;__STDC__;ACPI_DUMP_APP;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AssemblerListingLocation>.\AcpiDumpDebug\</AssemblerListingLocation>
       <PrecompiledHeaderOutputFile>.\AcpiDumpDebug\AcpiDump.pch</PrecompiledHeaderOutputFile>
@@ -166,6 +168,7 @@
     <ClCompile Include="..\..\source\components\tables\tbxfroot.c" />
     <ClCompile Include="..\..\source\components\utilities\utascii.c" />
     <ClCompile Include="..\..\source\components\utilities\utbuffer.c" />
+    <ClCompile Include="..\..\source\components\utilities\utcksum.c" />
     <ClCompile Include="..\..\source\components\utilities\utdebug.c" />
     <ClCompile Include="..\..\source\components\utilities\utexcep.c" />
     <ClCompile Include="..\..\source\components\utilities\utglobal.c" />
